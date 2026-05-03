@@ -181,7 +181,15 @@ if (! class_exists('GridlyWishlist_AJAX')) {
 			$name = isset($_POST['name']) ? sanitize_text_field(wp_unslash($_POST['name'])) : '';
 			$is_public = isset($_POST['is_public']) ? filter_var($_POST['is_public'], FILTER_VALIDATE_BOOLEAN) : null;
 
-			$result = gridlywishlist_update_collection($user_id, $collection_id, $name, $is_public);
+			$args = array();
+			if (! empty($name)) {
+				$args['name'] = $name;
+			}
+			if (null !== $is_public) {
+				$args['is_public'] = $is_public;
+			}
+
+			$result = gridlywishlist_update_collection($user_id, $collection_id, $args);
 
 			if (is_wp_error($result)) {
 				wp_send_json_error(array('message' => $result->get_error_message()), 400);

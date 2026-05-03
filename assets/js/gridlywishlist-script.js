@@ -692,4 +692,60 @@ jQuery(function ($) {
       }
     },
   );
+
+  // Visibility Toggle
+  $(document).on("click", ".gridlywishlist-collection-visibility", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    var $btn = $(this);
+    var collectionId = $btn.data("collection-id");
+    var isPublic = $btn.data("public") == "1";
+    var newPublic = !isPublic;
+
+    $btn.prop("disabled", true).css("opacity", "0.5");
+
+    $.ajax({
+      url: gridlywishlist_object.ajax_url,
+      type: "POST",
+      data: {
+        action: "gridlywishlist_collection_update",
+        nonce: gridlywishlist_object.nonce,
+        collection_id: collectionId,
+        is_public: newPublic ? "true" : "false",
+      },
+      success: function (response) {
+        if (response.success) {
+          // Simply reload to reflect changes
+          window.location.reload();
+        } else {
+          alert(response.data.message || "Error updating collection.");
+          $btn.prop("disabled", false).css("opacity", "1");
+        }
+      },
+      error: function () {
+        alert("Network error.");
+        $btn.prop("disabled", false).css("opacity", "1");
+      },
+    });
+  });
+
+  // Copy Share URL
+  $(document).on("click", ".gridlywishlist-copy-share-url", function (e) {
+    e.preventDefault();
+    var url = $(this).data("url");
+    var $btn = $(this);
+    var originalText = $btn.text();
+
+    var tempInput = $("<input>");
+    $("body").append(tempInput);
+    tempInput.val(url).select();
+    document.execCommand("copy");
+    tempInput.remove();
+
+    $btn.text("Copied!");
+    setTimeout(function () {
+      $btn.text(originalText);
+    }, 2000);
+  });
 });

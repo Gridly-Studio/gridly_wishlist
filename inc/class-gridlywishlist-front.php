@@ -415,47 +415,53 @@ if (! class_exists('GridlyWishlist_Front')) {
 			$collections = is_user_logged_in() ? gridlywishlist_prepare_collections_response(get_current_user_id()) : array();
 			$current_collection_id = $active_collection ? $active_collection : (is_user_logged_in() ? gridlywishlist_get_default_collection_id(get_current_user_id()) : '');
 ?>
-			<div class="gridlywishlist-collections">
-				<?php if (! empty($collections)) : ?>
-					<ul class="gridlywishlist-collection-tabs" data-active="<?php echo esc_attr($current_collection_id); ?>">
+			<div class="gridlywishlist-collections-container">
+				<div class="gridlywishlist-collections-nav">
+					<ul class="gridlywishlist-collection-tabs">
 						<?php foreach ($collections as $collection) : 
 							$is_active = $collection['id'] === $current_collection_id;
 							$is_public = ! empty($collection['is_public']);
-							$share_url = add_query_arg('share', $collection['id'], gridlywishlist_get_wishlist_page_url());
 						?>
 							<li class="<?php echo $is_active ? 'is-active' : ''; ?>">
-								<div class="gridlywishlist-collection-tab-header">
-									<a href="<?php echo esc_url(add_query_arg('collection', $collection['id'])); ?>" class="gridlywishlist-collection-link <?php echo $is_active ? 'active' : ''; ?>" data-collection-id="<?php echo esc_attr($collection['id']); ?>">
-										<?php echo esc_html($collection['name']); ?> (<?php echo esc_html($collection['count']); ?>)
-									</a>
-									<?php if (is_user_logged_in()) : ?>
-										<div class="gridlywishlist-collection-actions">
-											<button type="button" class="gridlywishlist-collection-visibility" data-collection-id="<?php echo esc_attr($collection['id']); ?>" data-public="<?php echo $is_public ? '1' : '0'; ?>" title="<?php echo $is_public ? esc_attr__('Make Private', 'gridlywishlist') : esc_attr__('Make Public', 'gridlywishlist'); ?>">
-												<?php echo $is_public ? '🌐' : '🔒'; ?>
-											</button>
-										</div>
-									<?php endif; ?>
-								</div>
-								<?php if ($is_public && is_user_logged_in()) : 
-									$wa_message = sprintf(
-										/* translators: 1: Collection Name, 2: Share URL */
-										__('Check out my wishlist: %1$s - %2$s', 'gridlywishlist'),
-										$collection['name'],
-										$share_url
-									);
-									$wa_url = 'https://wa.me/?text=' . rawurlencode($wa_message);
-								?>
-									<div class="gridlywishlist-collection-share-info">
-										<input type="text" readonly value="<?php echo esc_url($share_url); ?>" class="gridlywishlist-share-url-input" />
-										<button type="button" class="button gridlywishlist-copy-share-url" data-url="<?php echo esc_url($share_url); ?>"><?php esc_html_e('Copy', 'gridlywishlist'); ?></button>
-										<a href="<?php echo esc_url($wa_url); ?>" class="button gridlywishlist-whatsapp-share" target="_blank" title="<?php esc_attr_e('Share to WhatsApp', 'gridlywishlist'); ?>">
-											WA
-										</a>
-									</div>
+								<a href="<?php echo esc_url(add_query_arg('collection', $collection['id'])); ?>" class="gridlywishlist-collection-link <?php echo $is_active ? 'active' : ''; ?>" data-collection-id="<?php echo esc_attr($collection['id']); ?>">
+									<?php echo esc_html($collection['name']); ?> 
+									<span class="gridlywishlist-tab-count">(<?php echo esc_html($collection['count']); ?>)</span>
+								</a>
+								<?php if ($is_active && is_user_logged_in()) : ?>
+									<button type="button" class="gridlywishlist-collection-visibility" data-collection-id="<?php echo esc_attr($collection['id']); ?>" data-public="<?php echo $is_public ? '1' : '0'; ?>" title="<?php echo $is_public ? esc_attr__('Make Private', 'gridlywishlist') : esc_attr__('Make Public', 'gridlywishlist'); ?>">
+										<?php echo $is_public ? '🌐' : '🔒'; ?>
+									</button>
 								<?php endif; ?>
 							</li>
 						<?php endforeach; ?>
 					</ul>
+				</div>
+
+				<?php 
+				// Find active collection data for share info
+				$active_col_data = null;
+				foreach ($collections as $col) {
+					if ($col['id'] === $current_collection_id) {
+						$active_col_data = $col;
+						break;
+					}
+				}
+
+				if ($active_col_data && ! empty($active_col_data['is_public']) && is_user_logged_in()) : 
+					$share_url = add_query_arg('share', $active_col_data['id'], gridlywishlist_get_wishlist_page_url());
+					$wa_message = sprintf(__('Check out my wishlist: %1$s - %2$s', 'gridlywishlist'), $active_col_data['name'], $share_url);
+					$wa_url = 'https://wa.me/?text=' . rawurlencode($wa_message);
+				?>
+					<div class="gridlywishlist-collection-share-panel">
+						<div class="gridlywishlist-share-label"><?php esc_html_e('Public Link:', 'gridlywishlist'); ?></div>
+						<div class="gridlywishlist-share-controls">
+							<input type="text" readonly value="<?php echo esc_url($share_url); ?>" class="gridlywishlist-share-url-input" />
+							<button type="button" class="gridlywishlist-copy-share-url" data-url="<?php echo esc_url($share_url); ?>"><?php esc_html_e('Copy Link', 'gridlywishlist'); ?></button>
+							<a href="<?php echo esc_url($wa_url); ?>" class="gridlywishlist-whatsapp-share" target="_blank">
+								<span>WA</span> <?php esc_html_e('WhatsApp', 'gridlywishlist'); ?>
+							</a>
+						</div>
+					</div>
 				<?php endif; ?>
 			</div>
 			<div class="gridlywishlist-table-wrapper" data-empty-message="<?php echo esc_attr($empty_message); ?>" data-collection-id="<?php echo esc_attr($current_collection_id); ?>">

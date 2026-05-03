@@ -173,111 +173,152 @@ ul.products li.product .gridlywishlist-loading {
   margin-bottom: 25px;
 }
 
-.gridlywishlist-collection-tabs {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.gridlywishlist-collections-container {
+  margin-bottom: 30px;
+  border-bottom: 1px solid var(--gw-border);
+}
+
+.gridlywishlist-collections-nav {
   display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.gridlywishlist-collections-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.gridlywishlist-collection-tabs {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  gap: 30px;
 }
 
 .gridlywishlist-collection-tabs li {
-  background: #fff;
-  border: 1px solid var(--gw-border);
-  border-radius: 12px;
-  padding: 12px;
-  transition: all 0.3s ease;
+  margin: 0 !important;
+  padding: 0 !important;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-width: 200px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-}
-
-.gridlywishlist-collection-tabs li.is-active {
-  border-color: var(--gw-primary);
-  background: #fff;
-  box-shadow: 0 4px 15px rgba(0, 124, 255, 0.08);
-}
-
-.gridlywishlist-collection-tab-header {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: 10px;
+  position: relative;
 }
 
 .gridlywishlist-collection-link {
+  display: block;
+  padding: 15px 0;
   text-decoration: none !important;
   color: var(--gw-text-muted) !important;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+  border-bottom: 3px solid transparent;
+  box-shadow: none !important;
+}
+
+.gridlywishlist-collection-link:hover {
+  color: var(--gw-primary) !important;
+  opacity: 0.8;
 }
 
 .gridlywishlist-collection-link.active {
   color: var(--gw-primary) !important;
+  border-bottom-color: var(--gw-primary);
+}
+
+.gridlywishlist-tab-count {
+  font-size: 13px;
+  font-weight: 400;
+  opacity: 0.7;
 }
 
 .gridlywishlist-collection-visibility {
-  background: none !important;
-  border: none !important;
-  padding: 4px !important;
+  background: #f8f9fa !important;
+  border: 1px solid var(--gw-border) !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1;
-  opacity: 0.6;
-  transition: opacity 0.2s;
   box-shadow: none !important;
+  margin-left: -5px;
 }
 
 .gridlywishlist-collection-visibility:hover {
-  opacity: 1;
+  background: #e9ecef !important;
+  transform: scale(1.1);
 }
 
-.gridlywishlist-collection-share-info {
+/* Share Panel */
+.gridlywishlist-collection-share-panel {
   display: flex;
-  gap: 5px;
+  flex-direction: column;
+  gap: 10px;
   background: #f8f9fa;
-  padding: 6px;
-  border-radius: 6px;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 15px 0;
   border: 1px solid var(--gw-border);
-  margin-top: 5px;
+}
+
+.gridlywishlist-share-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--gw-text-muted);
+  letter-spacing: 0.5px;
+}
+
+.gridlywishlist-share-controls {
+  display: flex;
+  gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .gridlywishlist-share-url-input {
   flex: 1;
-  font-size: 11px !important;
-  padding: 4px !important;
-  border: none !important;
-  background: transparent !important;
-  width: 100% !important;
-  margin: 0 !important;
-  color: var(--gw-text-muted) !important;
+  min-width: 250px;
+  padding: 8px 12px !important;
+  font-size: 13px !important;
+  border: 1px solid var(--gw-border) !important;
+  border-radius: 4px !important;
+  background: #fff !important;
 }
 
 .gridlywishlist-copy-share-url,
 .gridlywishlist-whatsapp-share {
-  font-size: 10px !important;
-  padding: 4px 8px !important;
-  height: auto !important;
-  line-height: 1.2 !important;
-  margin: 0 !important;
-  text-decoration: none !important;
+  height: 38px !important;
+  padding: 0 15px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  border-radius: 4px !important;
   display: inline-flex !important;
   align-items: center !important;
-  gap: 3px !important;
+  gap: 8px !important;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  text-decoration: none !important;
+}
+
+.gridlywishlist-copy-share-url {
+  background: var(--gw-primary) !important;
+  color: #fff !important;
+  border: none !important;
 }
 
 .gridlywishlist-whatsapp-share {
-  background-color: #25d366 !important;
+  background: #25d366 !important;
   color: #fff !important;
-  border-color: #25d366 !important;
+  border: none !important;
 }
 
+.gridlywishlist-copy-share-url:hover,
 .gridlywishlist-whatsapp-share:hover {
-  background-color: #128c7e !important;
+  opacity: 0.9;
 }
 
 /* Bulk Toolbar */
