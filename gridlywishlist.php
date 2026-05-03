@@ -107,9 +107,11 @@ if (! class_exists('GridlyWishlist')) {
 		private function includes()
 		{
 			include_once GRIDLYWISHLIST_PATH . 'inc/helpers.php';
+			include_once GRIDLYWISHLIST_PATH . 'inc/analytics-helpers.php';
 			include_once GRIDLYWISHLIST_PATH . 'inc/class-gridlywishlist-admin-page.php';
 			include_once GRIDLYWISHLIST_PATH . 'inc/class-gridlywishlist-front.php';
 			include_once GRIDLYWISHLIST_PATH . 'inc/class-gridlywishlist-alerts.php';
+			include_once GRIDLYWISHLIST_PATH . 'inc/class-gridlywishlist-ajax.php';
 		}
 
 		/**
