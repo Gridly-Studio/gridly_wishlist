@@ -1,17 +1,17 @@
 /* Admin Menu Tabs */
-.gridlywishlist-menu {
+.payaman_wishlist-menu {
     margin: 20px 0 0 0;
     padding: 0;
     list-style: none;
     border-bottom: 1px solid #ccc;
 }
 
-.gridlywishlist-menu li {
+.payaman_wishlist-menu li {
     display: inline-block;
     margin: 0;
 }
 
-.gridlywishlist-menu li a {
+.payaman_wishlist-menu li a {
     display: block;
     padding: 10px 20px;
     text-decoration: none;
@@ -21,7 +21,7 @@
     font-weight: 600;
 }
 
-.gridlywishlist-menu li a.active {
+.payaman_wishlist-menu li a.active {
     background: #fff;
     border-color: #ccc;
     color: #333;
@@ -38,20 +38,20 @@
 }
 
 /* Switch Slider */
-.gridlywishlist-switch {
+.payaman_wishlist-switch {
     position: relative;
     display: inline-block;
     width: 40px;
     height: 20px;
 }
 
-.gridlywishlist-switch input {
+.payaman_wishlist-switch input {
     opacity: 0;
     width: 0;
     height: 0;
 }
 
-.gridlywishlist-slider {
+.payaman_wishlist-slider {
     position: absolute;
     cursor: pointer;
     top: 0;
@@ -63,7 +63,7 @@
     border-radius: 20px;
 }
 
-.gridlywishlist-slider:before {
+.payaman_wishlist-slider:before {
     position: absolute;
     content: "";
     height: 14px;
@@ -75,11 +75,11 @@
     border-radius: 50%;
 }
 
-input:checked + .gridlywishlist-slider {
+input:checked + .payaman_wishlist-slider {
     background-color: #0073aa;
 }
 
-input:checked + .gridlywishlist-slider:before {
+input:checked + .payaman_wishlist-slider:before {
     transform: translateX(20px);
 }
 
@@ -90,18 +90,18 @@ input:checked + .gridlywishlist-slider:before {
 }
 
 /* Dashboard Stats */
-.gridlywishlist-stat-card {
+.payaman_wishlist-stat-card {
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     border: 1px solid #e5e5e5 !important;
     transition: transform 0.2s;
 }
 
-.gridlywishlist-stat-card:hover {
+.payaman_wishlist-stat-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-.gridlywishlist-stat-card h3 {
+.payaman_wishlist-stat-card h3 {
     font-size: 14px;
     color: #666;
     text-transform: uppercase;

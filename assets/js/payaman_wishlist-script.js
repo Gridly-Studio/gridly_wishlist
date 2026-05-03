@@ -1,13 +1,13 @@
-/* global Cookies, gridlywishlist_object */
+/* global Cookies, payaman_wishlist_object */
 jQuery(function ($) {
   function showAlert(message) {
-    window.alert(message || gridlywishlist_object.i18n.generic_error);
+    window.alert(message || payaman_wishlist_object.i18n.generic_error);
   }
   function showToast(message) {
-    var $toast = $("#gridlywishlist-toast");
+    var $toast = $("#payaman_wishlist-toast");
     if (!$toast.length) {
       $toast = $(
-        '<div id="gridlywishlist-toast" class="gridlywishlist-toast"></div>',
+        '<div id="payaman_wishlist-toast" class="payaman_wishlist-toast"></div>',
       );
       $("body").append($toast);
     }
@@ -17,25 +17,25 @@ jQuery(function ($) {
     }, 3000);
   }
 
-  var $modal = $("#gridlywishlist-modal");
-  var collectionsData = gridlywishlist_object.collections || [];
-  var defaultCollectionId = gridlywishlist_object.default_collection_id || "";
+  var $modal = $("#payaman_wishlist-modal");
+  var collectionsData = payaman_wishlist_object.collections || [];
+  var defaultCollectionId = payaman_wishlist_object.default_collection_id || "";
   var collectionLimit = parseInt(
-    gridlywishlist_object.collection_limit || 0,
+    payaman_wishlist_object.collection_limit || 0,
     10,
   );
-  var canManageCollections = !!gridlywishlist_object.can_manage_collections;
+  var canManageCollections = !!payaman_wishlist_object.can_manage_collections;
   var pendingProductId = null;
   var pendingAction = null;
   var pendingCollectionId = defaultCollectionId;
   var pendingVariationId = 0;
 
   function parseWishlistCookie() {
-    if (!Cookies.get("gridlywishlist_product")) {
+    if (!Cookies.get("payaman_wishlist_product")) {
       return [];
     }
     try {
-      var parsed = JSON.parse(Cookies.get("gridlywishlist_product"));
+      var parsed = JSON.parse(Cookies.get("payaman_wishlist_product"));
       return Array.isArray(parsed) ? parsed : [];
     } catch (error) {
       return [];
@@ -44,7 +44,7 @@ jQuery(function ($) {
 
   function persistWishlistCookie(list) {
     try {
-      Cookies.set("gridlywishlist_product", JSON.stringify(list), {
+      Cookies.set("payaman_wishlist_product", JSON.stringify(list), {
         expires: 30,
         path: "/",
       });
@@ -55,7 +55,7 @@ jQuery(function ($) {
 
   function formatLabel(baseText, count) {
     if (
-      gridlywishlist_object.gridlywishlist_count === "yes" &&
+      payaman_wishlist_object.payaman_wishlist_count === "yes" &&
       count !== "" &&
       typeof count !== "undefined"
     ) {
@@ -66,7 +66,7 @@ jQuery(function ($) {
 
   function ensureModal() {
     if (!$modal.length) {
-      $modal = $("#gridlywishlist-modal");
+      $modal = $("#payaman_wishlist-modal");
     }
     return $modal;
   }
@@ -98,7 +98,7 @@ jQuery(function ($) {
       return;
     }
     modal
-      .find(".gridlywishlist-modal__message")
+      .find(".payaman_wishlist-modal__message")
       .text(message || "")
       .show();
     modal.removeClass("is-manage").addClass("is-message");
@@ -107,7 +107,7 @@ jQuery(function ($) {
 
   function renderCollectionOptions(selectedId) {
     var modal = ensureModal();
-    var $select = modal.find(".gridlywishlist-collection-select");
+    var $select = modal.find(".payaman_wishlist-collection-select");
     if (!$select.length) {
       return;
     }
@@ -116,7 +116,7 @@ jQuery(function ($) {
       options +=
         '<option value="" disabled>' +
         (canManageCollections
-          ? gridlywishlist_object.i18n.no_collections_yet
+          ? payaman_wishlist_object.i18n.no_collections_yet
           : "") +
         "</option>";
     } else {
@@ -161,23 +161,23 @@ jQuery(function ($) {
   }
 
   function updateButtonCollection(productId, collectionId) {
-    var selector = '.gridlywishlist[data-product-id="' + productId + '"]';
+    var selector = '.payaman_wishlist[data-product-id="' + productId + '"]';
     var $wrapper = $(selector);
     if (!$wrapper.length) {
       return;
     }
     $wrapper.attr("data-collection-id", collectionId || "");
     $wrapper
-      .find(".gridlywishlist-button")
+      .find(".payaman_wishlist-button")
       .attr("data-collection-id", collectionId || "");
   }
 
   function handleAjaxError(message, product_id) {
-    $(".gridlywishlist .gridlywishlist-loading").removeClass("on");
-    var selector = ".gridlywishlist .gridlywishlist-button";
+    $(".payaman_wishlist .payaman_wishlist-loading").removeClass("on");
+    var selector = ".payaman_wishlist .payaman_wishlist-button";
     if (product_id) {
       selector =
-        '.gridlywishlist .gridlywishlist-button[data-product-id="' +
+        '.payaman_wishlist .payaman_wishlist-button[data-product-id="' +
         product_id +
         '"]';
     }
@@ -193,32 +193,32 @@ jQuery(function ($) {
     collection_id,
     variation_id,
   ) {
-    var $wrapper = $('.gridlywishlist[data-product-id="' + product_id + '"]');
-    $wrapper.find(".gridlywishlist-loading").addClass("on");
-    $wrapper.find(".gridlywishlist-button").hide();
+    var $wrapper = $('.payaman_wishlist[data-product-id="' + product_id + '"]');
+    $wrapper.find(".payaman_wishlist-loading").addClass("on");
+    $wrapper.find(".payaman_wishlist-button").hide();
 
     var dataPost = {
-      action: "update_gridlywishlist",
+      action: "update_payaman_wishlist",
       fav_action: action,
       product_id: product_id,
-      nonce: gridlywishlist_object.nonce,
+      nonce: payaman_wishlist_object.nonce,
       collection_id: collection_id || "",
       variation_id: variation_id || 0,
     };
 
     $.ajax({
-      url: gridlywishlist_object.ajax_url,
+      url: payaman_wishlist_object.ajax_url,
       type: "POST",
       data: dataPost,
       success: function (response) {
-        $wrapper.find(".gridlywishlist-loading").removeClass("on");
-        $wrapper.find(".gridlywishlist-button").show();
+        $wrapper.find(".payaman_wishlist-loading").removeClass("on");
+        $wrapper.find(".payaman_wishlist-button").show();
 
         if (!response || !response.success) {
           var errorMessage =
             response && response.data && response.data.message
               ? response.data.message
-              : gridlywishlist_object.error_message;
+              : payaman_wishlist_object.error_message;
           handleAjaxError(errorMessage, product_id);
           return;
         }
@@ -226,11 +226,11 @@ jQuery(function ($) {
         var data = response.data || {};
         var count = typeof data.count !== "undefined" ? data.count : "";
         var buttonSelector =
-          '.gridlywishlist .gridlywishlist-button[data-product-id="' +
+          '.payaman_wishlist .payaman_wishlist-button[data-product-id="' +
           product_id +
           '"]';
         var wrapperSelector =
-          '.gridlywishlist[data-product-id="' + product_id + '"]';
+          '.payaman_wishlist[data-product-id="' + product_id + '"]';
         var $currentButton = $(buttonSelector);
         var $currentWrapper = $(wrapperSelector);
 
@@ -242,29 +242,29 @@ jQuery(function ($) {
         }
 
         if (collectionState === "on") {
-          if (gridlywishlist_object.enable_add_success_message === "yes") {
-            showToast(gridlywishlist_object.add_success_message);
+          if (payaman_wishlist_object.enable_add_success_message === "yes") {
+            showToast(payaman_wishlist_object.add_success_message);
           }
           $currentButton.removeClass("off").addClass("on");
           $currentWrapper.removeClass("off").addClass("on");
 
-          if (gridlywishlist_object.button_type === "text") {
-            $currentButton.text(formatLabel(gridlywishlist_object.on_val, count));
+          if (payaman_wishlist_object.button_type === "text") {
+            $currentButton.text(formatLabel(payaman_wishlist_object.on_val, count));
           } else {
-            $currentButton.attr("src", gridlywishlist_object.on_val);
+            $currentButton.attr("src", payaman_wishlist_object.on_val);
             $currentWrapper.find(".count").text(count);
           }
         } else {
-          if (gridlywishlist_object.enable_remove_success_message === "yes") {
-            showToast(gridlywishlist_object.remove_success_message);
+          if (payaman_wishlist_object.enable_remove_success_message === "yes") {
+            showToast(payaman_wishlist_object.remove_success_message);
           }
           $currentButton.removeClass("on").addClass("off");
           $currentWrapper.removeClass("on").addClass("off");
 
-          if (gridlywishlist_object.button_type === "text") {
-            $currentButton.text(formatLabel(gridlywishlist_object.off_val, count));
+          if (payaman_wishlist_object.button_type === "text") {
+            $currentButton.text(formatLabel(payaman_wishlist_object.off_val, count));
           } else {
-            $currentButton.attr("src", gridlywishlist_object.off_val);
+            $currentButton.attr("src", payaman_wishlist_object.off_val);
             $currentWrapper.find(".count").text(count);
           }
           removeRowFromTable(product_id);
@@ -275,9 +275,9 @@ jQuery(function ($) {
         }
       },
       error: function () {
-        $wrapper.find(".gridlywishlist-loading").removeClass("on");
-        $wrapper.find(".gridlywishlist-button").show();
-        handleAjaxError(gridlywishlist_object.error_message, product_id);
+        $wrapper.find(".payaman_wishlist-loading").removeClass("on");
+        $wrapper.find(".payaman_wishlist-button").show();
+        handleAjaxError(payaman_wishlist_object.error_message, product_id);
       },
     });
   }
@@ -312,36 +312,36 @@ jQuery(function ($) {
     $wrapper =
       $wrapper && $wrapper.length
         ? $wrapper
-        : $(".gridlywishlist-table-wrapper");
+        : $(".payaman_wishlist-table-wrapper");
     if (!$wrapper.length) {
       return;
     }
-    var $checkboxes = $wrapper.find(".gridlywishlist-bulk-checkbox");
+    var $checkboxes = $wrapper.find(".payaman_wishlist-bulk-checkbox");
     var checkedCount = $checkboxes.filter(":checked").length;
     $wrapper
-      .find(".gridlywishlist-bulk-remove")
+      .find(".payaman_wishlist-bulk-remove")
       .prop("disabled", checkedCount === 0);
     var allChecked =
       $checkboxes.length > 0 && checkedCount === $checkboxes.length;
     $wrapper
-      .find(".gridlywishlist-bulk-select-all")
+      .find(".payaman_wishlist-bulk-select-all")
       .prop("checked", allChecked);
   }
 
   function removeRowFromTable(productId) {
     var $row = $(
-      '.gridlywishlist-table-wrapper tr[data-product-id="' + productId + '"]',
+      '.payaman_wishlist-table-wrapper tr[data-product-id="' + productId + '"]',
     );
     if (!$row.length) {
       return;
     }
-    var $wrapper = $row.closest(".gridlywishlist-table-wrapper");
+    var $wrapper = $row.closest(".payaman_wishlist-table-wrapper");
     $row.remove();
     if ($wrapper.find("tbody tr").length === 0) {
       var emptyMessage =
         $wrapper.data("empty-message") || "No wishlist products found.";
       $wrapper.replaceWith(
-        '<p class="gridlywishlist-empty-message">' + emptyMessage + "</p>",
+        '<p class="payaman_wishlist-empty-message">' + emptyMessage + "</p>",
       );
     } else {
       updateBulkControls($wrapper);
@@ -353,23 +353,23 @@ jQuery(function ($) {
       return;
     }
 
-    var $button = $wrapper.find(".gridlywishlist-bulk-remove");
+    var $button = $wrapper.find(".payaman_wishlist-bulk-remove");
     $button.prop("disabled", true).addClass("is-loading");
 
     $.ajax({
-      url: gridlywishlist_object.ajax_url,
+      url: payaman_wishlist_object.ajax_url,
       type: "POST",
       data: {
-        action: "gridlywishlist_bulk_remove",
+        action: "payaman_wishlist_bulk_remove",
         product_ids: productIds,
-        nonce: gridlywishlist_object.nonce,
+        nonce: payaman_wishlist_object.nonce,
       },
       success: function (response) {
         if (!response || !response.success) {
           var errorMessage =
             response && response.data && response.data.message
               ? response.data.message
-              : gridlywishlist_object.error_message;
+              : payaman_wishlist_object.error_message;
           openMessageModal(errorMessage);
           return;
         }
@@ -394,12 +394,12 @@ jQuery(function ($) {
           removeRowFromTable(id);
         });
 
-        if (gridlywishlist_object.enable_remove_success_message === "yes") {
-          openMessageModal(gridlywishlist_object.remove_success_message);
+        if (payaman_wishlist_object.enable_remove_success_message === "yes") {
+          openMessageModal(payaman_wishlist_object.remove_success_message);
         }
       },
       error: function () {
-        openMessageModal(gridlywishlist_object.error_message);
+        openMessageModal(payaman_wishlist_object.error_message);
       },
       complete: function () {
         $button.removeClass("is-loading");
@@ -410,23 +410,23 @@ jQuery(function ($) {
 
   function handleCollectionCreate() {
     var modal = ensureModal();
-    var name = modal.find(".gridlywishlist-collection-name").val();
+    var name = modal.find(".payaman_wishlist-collection-name").val();
     var isPublic = modal
-      .find(".gridlywishlist-collection-public")
+      .find(".payaman_wishlist-collection-public")
       .is(":checked");
 
     if (!name) {
-      showAlert(gridlywishlist_object.i18n.fill_collection_name);
-      modal.find(".gridlywishlist-collection-name").focus();
+      showAlert(payaman_wishlist_object.i18n.fill_collection_name);
+      modal.find(".payaman_wishlist-collection-name").focus();
       return;
     }
 
     $.ajax({
-      url: gridlywishlist_object.ajax_url,
+      url: payaman_wishlist_object.ajax_url,
       type: "POST",
       data: {
-        action: "gridlywishlist_collection_create",
-        nonce: gridlywishlist_object.nonce,
+        action: "payaman_wishlist_collection_create",
+        nonce: payaman_wishlist_object.nonce,
         name: name,
         is_public: isPublic,
       },
@@ -435,7 +435,7 @@ jQuery(function ($) {
           var errorMessage =
             response && response.data && response.data.message
               ? response.data.message
-              : gridlywishlist_object.error_message;
+              : payaman_wishlist_object.error_message;
           openMessageModal(errorMessage);
           return;
         }
@@ -443,24 +443,24 @@ jQuery(function ($) {
         pendingCollectionId = response.data.collection.id;
 
         // Reset view
-        modal.find(".gridlywishlist-collection-name").val("");
-        modal.find(".gridlywishlist-collection-public").prop("checked", false);
-        modal.find(".gridlywishlist-collection-create").hide();
-        modal.find(".gridlywishlist-collection-select-wrapper").show();
-        modal.find(".gridlywishlist-modal__manage-actions").show();
+        modal.find(".payaman_wishlist-collection-name").val("");
+        modal.find(".payaman_wishlist-collection-public").prop("checked", false);
+        modal.find(".payaman_wishlist-collection-create").hide();
+        modal.find(".payaman_wishlist-collection-select-wrapper").show();
+        modal.find(".payaman_wishlist-modal__manage-actions").show();
 
         renderCollectionOptions(pendingCollectionId);
       },
       error: function () {
-        openMessageModal(gridlywishlist_object.error_message);
+        openMessageModal(payaman_wishlist_object.error_message);
       },
     });
   }
 
-  $("body").on("click", ".gridlywishlist-button", function () {
-    var requireLogin = gridlywishlist_object.required_login === "yes";
-    if (requireLogin && !gridlywishlist_object.is_login) {
-      showAlert(gridlywishlist_object.required_login_message);
+  $("body").on("click", ".payaman_wishlist-button", function () {
+    var requireLogin = payaman_wishlist_object.required_login === "yes";
+    if (requireLogin && !payaman_wishlist_object.is_login) {
+      showAlert(payaman_wishlist_object.required_login_message);
       return;
     }
 
@@ -485,7 +485,7 @@ jQuery(function ($) {
     // Simpan ke data attribute agar konsisten
     $button.attr("data-variation-id", variationId || "");
     $button
-      .closest(".gridlywishlist")
+      .closest(".payaman_wishlist")
       .attr("data-variation-id", variationId || "");
 
     if (!isActive) {
@@ -495,7 +495,7 @@ jQuery(function ($) {
     }
   });
 
-  $(document).on("click", "[data-gridlywishlist-close]", function (event) {
+  $(document).on("click", "[data-payaman_wishlist-close]", function (event) {
     event.preventDefault();
     closeModal();
   });
@@ -506,21 +506,21 @@ jQuery(function ($) {
     }
   });
 
-  $(document).on("change", ".gridlywishlist-bulk-checkbox", function () {
-    updateBulkControls($(this).closest(".gridlywishlist-table-wrapper"));
+  $(document).on("change", ".payaman_wishlist-bulk-checkbox", function () {
+    updateBulkControls($(this).closest(".payaman_wishlist-table-wrapper"));
   });
 
-  $(document).on("change", ".gridlywishlist-bulk-select-all", function () {
-    var $wrapper = $(this).closest(".gridlywishlist-table-wrapper");
+  $(document).on("change", ".payaman_wishlist-bulk-select-all", function () {
+    var $wrapper = $(this).closest(".payaman_wishlist-table-wrapper");
     var state = $(this).is(":checked");
-    $wrapper.find(".gridlywishlist-bulk-checkbox").prop("checked", state);
+    $wrapper.find(".payaman_wishlist-bulk-checkbox").prop("checked", state);
     updateBulkControls($wrapper);
   });
 
-  $(document).on("click", ".gridlywishlist-bulk-remove", function (event) {
+  $(document).on("click", ".payaman_wishlist-bulk-remove", function (event) {
     event.preventDefault();
-    var $wrapper = $(this).closest(".gridlywishlist-table-wrapper");
-    var $selected = $wrapper.find(".gridlywishlist-bulk-checkbox:checked");
+    var $wrapper = $(this).closest(".payaman_wishlist-table-wrapper");
+    var $selected = $wrapper.find(".payaman_wishlist-bulk-checkbox:checked");
     if (!$selected.length) {
       return;
     }
@@ -538,24 +538,24 @@ jQuery(function ($) {
     bulkRemoveWishlist(productIds, $wrapper);
   });
 
-  $(document).on("change", ".gridlywishlist-bulk-move-target", function () {
-    var $wrapper = $(this).closest(".gridlywishlist-table-wrapper");
+  $(document).on("change", ".payaman_wishlist-bulk-move-target", function () {
+    var $wrapper = $(this).closest(".payaman_wishlist-table-wrapper");
     var target = $(this).val();
     var hasSelection =
-      $wrapper.find(".gridlywishlist-bulk-checkbox:checked").length > 0;
+      $wrapper.find(".payaman_wishlist-bulk-checkbox:checked").length > 0;
     $wrapper
-      .find(".gridlywishlist-bulk-move-button")
+      .find(".payaman_wishlist-bulk-move-button")
       .prop("disabled", !target || !hasSelection);
   });
 
-  $(document).on("click", ".gridlywishlist-bulk-move-button", function (event) {
+  $(document).on("click", ".payaman_wishlist-bulk-move-button", function (event) {
     event.preventDefault();
-    var $wrapper = $(this).closest(".gridlywishlist-table-wrapper");
-    var target = $wrapper.find(".gridlywishlist-bulk-move-target").val();
+    var $wrapper = $(this).closest(".payaman_wishlist-table-wrapper");
+    var target = $wrapper.find(".payaman_wishlist-bulk-move-target").val();
     if (!target) {
       return;
     }
-    var $selected = $wrapper.find(".gridlywishlist-bulk-checkbox:checked");
+    var $selected = $wrapper.find(".payaman_wishlist-bulk-checkbox:checked");
     if (!$selected.length) {
       return;
     }
@@ -572,11 +572,11 @@ jQuery(function ($) {
     }
 
     $.ajax({
-      url: gridlywishlist_object.ajax_url,
+      url: payaman_wishlist_object.ajax_url,
       type: "POST",
       data: {
-        action: "gridlywishlist_collection_move_items",
-        nonce: gridlywishlist_object.nonce,
+        action: "payaman_wishlist_collection_move_items",
+        nonce: payaman_wishlist_object.nonce,
         product_ids: productIds,
         target_collection_id: target,
         source_collection_id: $wrapper.data("collection-id") || "",
@@ -586,7 +586,7 @@ jQuery(function ($) {
           var errorMessage =
             response && response.data && response.data.message
               ? response.data.message
-              : gridlywishlist_object.error_message;
+              : payaman_wishlist_object.error_message;
           openMessageModal(errorMessage);
           return;
         }
@@ -605,29 +605,29 @@ jQuery(function ($) {
             }
             $(this)
               .attr("data-collection-id", target)
-              .find(".gridlywishlist-table__collection")
+              .find(".payaman_wishlist-table__collection")
               .text(targetName);
           });
         updateBulkControls($wrapper);
         $wrapper
-          .find(".gridlywishlist-bulk-move-button")
+          .find(".payaman_wishlist-bulk-move-button")
           .prop("disabled", true);
-        if (gridlywishlist_object.enable_add_success_message === "yes") {
-          openMessageModal(gridlywishlist_object.add_success_message);
+        if (payaman_wishlist_object.enable_add_success_message === "yes") {
+          openMessageModal(payaman_wishlist_object.add_success_message);
         }
       },
       error: function () {
-        openMessageModal(gridlywishlist_object.error_message);
+        openMessageModal(payaman_wishlist_object.error_message);
       },
     });
   });
 
-  $(document).on("click", ".gridlywishlist-collection-apply", function (event) {
+  $(document).on("click", ".payaman_wishlist-collection-apply", function (event) {
     event.preventDefault();
     var modal = ensureModal();
-    var selected = modal.find(".gridlywishlist-collection-select").val();
+    var selected = modal.find(".payaman_wishlist-collection-select").val();
     if (!selected) {
-      showAlert(gridlywishlist_object.i18n.select_collection_first);
+      showAlert(payaman_wishlist_object.i18n.select_collection_first);
       return;
     }
     pendingCollectionId = selected;
@@ -642,35 +642,35 @@ jQuery(function ($) {
 
   $(document).on(
     "click",
-    ".gridlywishlist-collection-create-toggle",
+    ".payaman_wishlist-collection-create-toggle",
     function (event) {
       event.preventDefault();
       var modal = ensureModal();
-      modal.find(".gridlywishlist-collection-select-wrapper").hide();
-      modal.find(".gridlywishlist-modal__manage-actions").hide();
-      modal.find(".gridlywishlist-collection-create").fadeIn(200);
+      modal.find(".payaman_wishlist-collection-select-wrapper").hide();
+      modal.find(".payaman_wishlist-modal__manage-actions").hide();
+      modal.find(".payaman_wishlist-collection-create").fadeIn(200);
     },
   );
 
   $(document).on(
     "click",
-    ".gridlywishlist-collection-create-cancel",
+    ".payaman_wishlist-collection-create-cancel",
     function (event) {
       event.preventDefault();
       var modal = ensureModal();
-      modal.find(".gridlywishlist-collection-create").hide();
-      modal.find(".gridlywishlist-collection-select-wrapper").fadeIn(200);
-      modal.find(".gridlywishlist-modal__manage-actions").fadeIn(200);
+      modal.find(".payaman_wishlist-collection-create").hide();
+      modal.find(".payaman_wishlist-collection-select-wrapper").fadeIn(200);
+      modal.find(".payaman_wishlist-modal__manage-actions").fadeIn(200);
     },
   );
 
   $(document).on(
     "click",
-    ".gridlywishlist-collection-create-submit",
+    ".payaman_wishlist-collection-create-submit",
     function (event) {
       event.preventDefault();
       if (collectionLimit && collectionsData.length >= collectionLimit) {
-        openMessageModal(gridlywishlist_object.i18n.collection_limit_reached);
+        openMessageModal(payaman_wishlist_object.i18n.collection_limit_reached);
         return;
       }
       handleCollectionCreate();
@@ -678,7 +678,7 @@ jQuery(function ($) {
   );
 
   $(document).ready(function () {
-    updateBulkControls($(".gridlywishlist-table-wrapper"));
+    updateBulkControls($(".payaman_wishlist-table-wrapper"));
     renderCollectionOptions(defaultCollectionId);
   });
 
@@ -692,22 +692,22 @@ jQuery(function ($) {
           ? parseInt(variation.variation_id, 10)
           : 0;
       $(this)
-        .find(".gridlywishlist-button")
+        .find(".payaman_wishlist-button")
         .attr("data-variation-id", variationId || "");
       $(this)
-        .find(".gridlywishlist")
+        .find(".payaman_wishlist")
         .attr("data-variation-id", variationId || "");
     },
   );
 
   $("body").on("reset_data", "form.variations_form", function () {
-    $(this).find(".gridlywishlist-button").attr("data-variation-id", "");
-    $(this).find(".gridlywishlist").attr("data-variation-id", "");
+    $(this).find(".payaman_wishlist-button").attr("data-variation-id", "");
+    $(this).find(".payaman_wishlist").attr("data-variation-id", "");
   });
 
   $(document).on(
     "click",
-    ".gridlywishlist-collection-tabs a",
+    ".payaman_wishlist-collection-tabs a",
     function (event) {
       event.preventDefault();
       var url = $(this).attr("href");
@@ -720,7 +720,7 @@ jQuery(function ($) {
   // Visibility Toggle
   $(document).on(
     "click",
-    ".gridlywishlist-collection-visibility",
+    ".payaman_wishlist-collection-visibility",
     function (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -733,11 +733,11 @@ jQuery(function ($) {
       $btn.prop("disabled", true).css("opacity", "0.5");
 
       $.ajax({
-        url: gridlywishlist_object.ajax_url,
+        url: payaman_wishlist_object.ajax_url,
         type: "POST",
         data: {
-          action: "gridlywishlist_collection_update",
-          nonce: gridlywishlist_object.nonce,
+          action: "payaman_wishlist_collection_update",
+          nonce: payaman_wishlist_object.nonce,
           collection_id: collectionId,
           is_public: newPublic ? "true" : "false",
         },
@@ -759,7 +759,7 @@ jQuery(function ($) {
   );
 
   // Copy Share URL
-  $(document).on("click", ".gridlywishlist-copy-share-url", function (e) {
+  $(document).on("click", ".payaman_wishlist-copy-share-url", function (e) {
     e.preventDefault();
     var url = $(this).data("url");
     var $btn = $(this);
@@ -774,20 +774,20 @@ jQuery(function ($) {
   });
 
   // Wishlist Page Collection Management
-  $(document).on("click", ".gridlywishlist-collection-add-new", function (e) {
+  $(document).on("click", ".payaman_wishlist-collection-add-new", function (e) {
     e.preventDefault();
-    var name = prompt(gridlywishlist_object.i18n.fill_collection_name);
+    var name = prompt(payaman_wishlist_object.i18n.fill_collection_name);
     if (!name) return;
 
     var $btn = $(this);
     $btn.prop("disabled", true).css("opacity", "0.5");
 
     $.ajax({
-      url: gridlywishlist_object.ajax_url,
+      url: payaman_wishlist_object.ajax_url,
       type: "POST",
       data: {
-        action: "gridlywishlist_collection_create",
-        nonce: gridlywishlist_object.nonce,
+        action: "payaman_wishlist_collection_create",
+        nonce: payaman_wishlist_object.nonce,
         name: name,
         is_public: false,
       },
@@ -806,7 +806,7 @@ jQuery(function ($) {
     });
   });
 
-  $(document).on("click", ".gridlywishlist-collection-rename", function (e) {
+  $(document).on("click", ".payaman_wishlist-collection-rename", function (e) {
     e.preventDefault();
     var id = $(this).data("id");
     var currentName = $(this).data("name");
@@ -817,11 +817,11 @@ jQuery(function ($) {
     $btn.prop("disabled", true).css("opacity", "0.5");
 
     $.ajax({
-      url: gridlywishlist_object.ajax_url,
+      url: payaman_wishlist_object.ajax_url,
       type: "POST",
       data: {
-        action: "gridlywishlist_collection_update",
-        nonce: gridlywishlist_object.nonce,
+        action: "payaman_wishlist_collection_update",
+        nonce: payaman_wishlist_object.nonce,
         collection_id: id,
         name: newName,
       },
@@ -840,7 +840,7 @@ jQuery(function ($) {
     });
   });
 
-  $(document).on("click", ".gridlywishlist-collection-delete", function (e) {
+  $(document).on("click", ".payaman_wishlist-collection-delete", function (e) {
     e.preventDefault();
     if (
       !confirm(
@@ -854,11 +854,11 @@ jQuery(function ($) {
     $btn.prop("disabled", true).css("opacity", "0.5");
 
     $.ajax({
-      url: gridlywishlist_object.ajax_url,
+      url: payaman_wishlist_object.ajax_url,
       type: "POST",
       data: {
-        action: "gridlywishlist_collection_delete",
-        nonce: gridlywishlist_object.nonce,
+        action: "payaman_wishlist_collection_delete",
+        nonce: payaman_wishlist_object.nonce,
         collection_id: id,
       },
       success: function (response) {
@@ -882,7 +882,7 @@ jQuery(function ($) {
     $(document.body).on(
       "added_to_cart",
       function (event, fragments, cart_hash, $button) {
-        if (gridlywishlist_object.remove_after_add_to_cart !== "yes") {
+        if (payaman_wishlist_object.remove_after_add_to_cart !== "yes") {
           return;
         }
 
@@ -896,23 +896,23 @@ jQuery(function ($) {
 
         // Find all wishlist buttons for this product and toggle them off
         $(
-          '.gridlywishlist-button[data-product-id="' +
+          '.payaman_wishlist-button[data-product-id="' +
             productId +
-            '"], .gridlywishlist[data-product-id="' +
+            '"], .payaman_wishlist[data-product-id="' +
             productId +
             '"]',
         ).each(function () {
           var $btn = $(this);
           $btn.removeClass("on").addClass("off");
-          $btn.find("span").text(gridlywishlist_object.off_val);
+          $btn.find("span").text(payaman_wishlist_object.off_val);
           // If image type
-          if (gridlywishlist_object.button_type === "image") {
-            $btn.find("img").attr("src", gridlywishlist_object.off_val);
+          if (payaman_wishlist_object.button_type === "image") {
+            $btn.find("img").attr("src", payaman_wishlist_object.off_val);
           }
 
           // Update count if visible
-          if (gridlywishlist_object.gridlywishlist_count === "yes") {
-            var $countLabel = $btn.find(".gridlywishlist-count-label");
+          if (payaman_wishlist_object.payaman_wishlist_count === "yes") {
+            var $countLabel = $btn.find(".payaman_wishlist-count-label");
             if ($countLabel.length) {
               // Since it was added to cart, and we remove from wishlist,
               // the count for this specific product on the button might need recalculation.
@@ -924,18 +924,18 @@ jQuery(function ($) {
 
         // If we are on the wishlist page, remove the row
         var $wishlistRow = $(
-          '.gridlywishlist-table tr[data-product-id="' + productId + '"]',
+          '.payaman_wishlist-table tr[data-product-id="' + productId + '"]',
         );
         if ($wishlistRow.length) {
           $wishlistRow.fadeOut(300, function () {
             $(this).remove();
             // Check if table is empty
-            if ($(".gridlywishlist-table tbody tr").length === 0) {
-              var emptyMsg = $(".gridlywishlist-table-wrapper").data(
+            if ($(".payaman_wishlist-table tbody tr").length === 0) {
+              var emptyMsg = $(".payaman_wishlist-table-wrapper").data(
                 "empty-message",
               );
-              $(".gridlywishlist-table-wrapper").html(
-                '<p class="gridlywishlist-empty">' + emptyMsg + "</p>",
+              $(".payaman_wishlist-table-wrapper").html(
+                '<p class="payaman_wishlist-empty">' + emptyMsg + "</p>",
               );
             }
           });

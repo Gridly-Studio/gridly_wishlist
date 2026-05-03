@@ -1,5 +1,5 @@
-=== Gridly Wishlist ===
-Contributors: gridlystudio
+=== Payaman Wishlist ===
+Contributors: payamanstudio
 Tags: wishlist, woocommerce, favorites, collections, share wishlist
 Requires at least: 5.8
 Tested up to: 6.5
@@ -14,7 +14,7 @@ A simple and powerful wishlist plugin for WooCommerce with collection management
 
 == Description ==
 
-**Gridly Wishlist** adds a fully-featured wishlist experience to your WooCommerce store. Customers can save products to named collections, manage multiple wishlists, and share their favourite picks with others.
+**Payaman Wishlist** adds a fully-featured wishlist experience to your WooCommerce store. Customers can save products to named collections, manage multiple wishlists, and share their favourite picks with others.
 
 = Key Features =
 
@@ -30,17 +30,17 @@ A simple and powerful wishlist plugin for WooCommerce with collection management
 
 = Shortcodes =
 
-* `[gridlywishlist_button]` — Display the wishlist toggle button for the current product
-* `[gridlywishlist_button product_id="42"]` — Display for a specific product
-* `[gridlywishlist_list]` — Display the current user's wishlist (use `?share={slug}` to view a public collection)
+* `[payaman_wishlist_button]` — Display the wishlist toggle button for the current product
+* `[payaman_wishlist_button product_id="42"]` — Display for a specific product
+* `[payaman_wishlist_list]` — Display the current user's wishlist (use `?share={slug}` to view a public collection)
 
 == Installation ==
 
-1. Upload the `gridlywishlist` folder to the `/wp-content/plugins/` directory, or install via **Plugins → Add New** in your WordPress dashboard.
+1. Upload the `payaman_wishlist` folder to the `/wp-content/plugins/` directory, or install via **Plugins → Add New** in your WordPress dashboard.
 2. Activate the plugin through the **Plugins** screen.
 3. Make sure **WooCommerce** is installed and active.
-4. Go to **Gridly Studio → Gridly Wishlist** to configure the plugin settings.
-5. Add the shortcode `[gridlywishlist_list]` to a page (e.g., a page named "Wishlist").
+4. Go to **Payaman Studio → Payaman Wishlist** to configure the plugin settings.
+5. Add the shortcode `[payaman_wishlist_list]` to a page (e.g., a page named "Wishlist").
 
 == Frequently Asked Questions ==
 
@@ -60,11 +60,11 @@ Yes. Guests can add products to their wishlist via browser cookies. When they lo
 
 = What shortcode do I use to display the wishlist? =
 
-Add `[gridlywishlist_list]` to any page. The plugin automatically creates a **Wishlist** page during activation with this shortcode.
+Add `[payaman_wishlist_list]` to any page. The plugin automatically creates a **Wishlist** page during activation with this shortcode.
 
 = How do I change the button text? =
 
-Go to **Gridly Studio → Gridly Wishlist → Button Setting** to customise the "Add" and "Remove" button text or upload custom images.
+Go to **Payaman Studio → Payaman Wishlist → Button Setting** to customise the "Add" and "Remove" button text or upload custom images.
 
 == Screenshots ==
 

@@ -1,8 +1,8 @@
 <?php
 /**
- * GridlyWishlist Analytics Helpers
+ * Payaman_Wishlist Analytics Helpers
  *
- * @package gridlywishlist
+ * @package payaman_wishlist
  * @version 1.0.0
  */
 
@@ -16,10 +16,10 @@ if (! defined('ABSPATH')) {
  * @param int $limit
  * @return array
  */
-function gridlywishlist_get_top_products($limit = 10)
+function payaman_wishlist_get_top_products($limit = 10)
 {
 	global $wpdb;
-	$items_table = gridlywishlist_get_table_name('items');
+	$items_table = payaman_wishlist_get_table_name('items');
 	
 	$results = $wpdb->get_results(
 		$wpdb->prepare(
@@ -45,7 +45,7 @@ function gridlywishlist_get_top_products($limit = 10)
 			$result['image'] = $product->get_image('thumbnail');
 			$result['link']  = get_edit_post_link($result['product_id']);
 		} else {
-			$result['name']  = __('Unknown Product', 'gridlywishlist');
+			$result['name']  = __('Unknown Product', 'payaman_wishlist');
 			$result['price'] = '';
 			$result['image'] = '';
 			$result['link']  = '#';
@@ -60,11 +60,11 @@ function gridlywishlist_get_top_products($limit = 10)
  *
  * @return array
  */
-function gridlywishlist_get_stats()
+function payaman_wishlist_get_stats()
 {
 	global $wpdb;
-	$items_table       = gridlywishlist_get_table_name('items');
-	$collections_table = gridlywishlist_get_table_name('collections');
+	$items_table       = payaman_wishlist_get_table_name('items');
+	$collections_table = payaman_wishlist_get_table_name('collections');
 
 	$total_items       = $wpdb->get_var("SELECT COUNT(*) FROM {$items_table}");
 	$total_collections = $wpdb->get_var("SELECT COUNT(*) FROM {$collections_table}");
@@ -83,11 +83,11 @@ function gridlywishlist_get_stats()
  * @param int $product_id
  * @return array
  */
-function gridlywishlist_get_users_by_product($product_id)
+function payaman_wishlist_get_users_by_product($product_id)
 {
 	global $wpdb;
-	$items_table       = gridlywishlist_get_table_name('items');
-	$collections_table = gridlywishlist_get_table_name('collections');
+	$items_table       = payaman_wishlist_get_table_name('items');
+	$collections_table = payaman_wishlist_get_table_name('collections');
 
 	$results = $wpdb->get_col(
 		$wpdb->prepare(

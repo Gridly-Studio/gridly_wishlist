@@ -6,110 +6,110 @@ if (! defined('ABSPATH')) {
 <div class="form-section" id="tab-general" style="display: none;">
 	<table class="form-table">
 		<tr>
-			<th scope="row"><label for="gridlywishlist_enabled"><?php esc_html_e('Enabled', 'gridlywishlist'); ?></label></th>
+			<th scope="row"><label for="payaman_wishlist_enabled"><?php esc_html_e('Enabled', 'payaman_wishlist'); ?></label></th>
 			<td>
-				<label class="gridlywishlist-switch">
-					<input type="checkbox" name="gridlywishlist_enabled" id="gridlywishlist_enabled" value="yes" <?php checked(gridlywishlist_setting('enabled'), 'yes'); ?> />
-					<span class="gridlywishlist-slider round"></span>
+				<label class="payaman_wishlist-switch">
+					<input type="checkbox" name="payaman_wishlist_enabled" id="payaman_wishlist_enabled" value="yes" <?php checked(payaman_wishlist_setting('enabled'), 'yes'); ?> />
+					<span class="payaman_wishlist-slider round"></span>
 				</label>
-				<p class="description"><?php esc_html_e('Enable Gridly Wishlist functionality', 'gridlywishlist'); ?></p>
+				<p class="description"><?php esc_html_e('Enable Payaman Wishlist functionality', 'payaman_wishlist'); ?></p>
 			</td>
 		</tr>
 		<tr>
-			<th scope="row"><?php esc_html_e('Wishlist Page', 'gridlywishlist'); ?></th>
+			<th scope="row"><?php esc_html_e('Wishlist Page', 'payaman_wishlist'); ?></th>
 			<td>
-				<a href="<?php echo esc_url(site_url('wishlist-list')); ?>" target="_blank"><?php esc_html_e('Page Wishlist', 'gridlywishlist'); ?></a>
-				<p class="description"><?php esc_html_e('Default page to display wishlist list, or use shortcode [gridlywishlist_list]', 'gridlywishlist'); ?></p>
+				<a href="<?php echo esc_url(site_url('wishlist-list')); ?>" target="_blank"><?php esc_html_e('Page Wishlist', 'payaman_wishlist'); ?></a>
+				<p class="description"><?php esc_html_e('Default page to display wishlist list, or use shortcode [payaman_wishlist_list]', 'payaman_wishlist'); ?></p>
 			</td>
 		</tr>
 		<tr>
-			<th scope="row"><label for="gridlywishlist_count"><?php esc_html_e('Display Gridly Wishlist Number', 'gridlywishlist'); ?></label></th>
+			<th scope="row"><label for="payaman_wishlist_count"><?php esc_html_e('Display Payaman Wishlist Number', 'payaman_wishlist'); ?></label></th>
 			<td>
-				<label class="gridlywishlist-switch">
-					<input type="checkbox" name="gridlywishlist_count" id="gridlywishlist_count" value="yes" <?php checked(gridlywishlist_setting('gridlywishlist_count'), 'yes'); ?> />
-					<span class="gridlywishlist-slider round"></span>
+				<label class="payaman_wishlist-switch">
+					<input type="checkbox" name="payaman_wishlist_count" id="payaman_wishlist_count" value="yes" <?php checked(payaman_wishlist_setting('payaman_wishlist_count'), 'yes'); ?> />
+					<span class="payaman_wishlist-slider round"></span>
 				</label>
-				<p class="description"><?php esc_html_e('Displays the number of wishlists in each product', 'gridlywishlist'); ?> <br /><span style="color: red;"><?php esc_html_e('! this will impact on the speed of your website', 'gridlywishlist'); ?></span></p>
+				<p class="description"><?php esc_html_e('Displays the number of wishlists in each product', 'payaman_wishlist'); ?> <br /><span style="color: red;"><?php esc_html_e('! this will impact on the speed of your website', 'payaman_wishlist'); ?></span></p>
 			</td>
 		</tr>
 		<tr>
-			<th scope="row"><?php esc_html_e('Display Button On', 'gridlywishlist'); ?></th>
+			<th scope="row"><?php esc_html_e('Display Button On', 'payaman_wishlist'); ?></th>
 			<td>
-				<table class="gridlywishlist-default-table">
+				<table class="payaman_wishlist-default-table">
 					<tr>
 						<td width="50">
-							<label class="gridlywishlist-switch">
-								<input type="checkbox" name="display_on[]" value="single_product" <?php echo !empty(gridlywishlist_setting('display_on')) && in_array('single_product', gridlywishlist_setting('display_on')) ? 'checked' : ''; ?> />
-								<span class="gridlywishlist-slider round"></span>
+							<label class="payaman_wishlist-switch">
+								<input type="checkbox" name="display_on[]" value="single_product" <?php echo !empty(payaman_wishlist_setting('display_on')) && in_array('single_product', payaman_wishlist_setting('display_on')) ? 'checked' : ''; ?> />
+								<span class="payaman_wishlist-slider round"></span>
 							</label>
 						</td>
-						<td><?php esc_html_e('Single Product', 'gridlywishlist'); ?></td>
+						<td><?php esc_html_e('Single Product', 'payaman_wishlist'); ?></td>
 					</tr>
 					<tr>
 						<td>
-							<label class="gridlywishlist-switch">
-								<input type="checkbox" name="display_on[]" value="loop_product" <?php echo !empty(gridlywishlist_setting('display_on')) && in_array('loop_product', gridlywishlist_setting('display_on')) ? 'checked' : ''; ?> />
-								<span class="gridlywishlist-slider round"></span>
+							<label class="payaman_wishlist-switch">
+								<input type="checkbox" name="display_on[]" value="loop_product" <?php echo !empty(payaman_wishlist_setting('display_on')) && in_array('loop_product', payaman_wishlist_setting('display_on')) ? 'checked' : ''; ?> />
+								<span class="payaman_wishlist-slider round"></span>
 							</label>
 						</td>
-						<td><?php esc_html_e('Product Loop', 'gridlywishlist'); ?></td>
+						<td><?php esc_html_e('Product Loop', 'payaman_wishlist'); ?></td>
 					</tr>
 				</table>
-				<p class="description"><?php esc_html_e('Choose where your wishlist button will appear or you can use shortcode [gridlywishlist_button]', 'gridlywishlist'); ?></p>
+				<p class="description"><?php esc_html_e('Choose where your wishlist button will appear or you can use shortcode [payaman_wishlist_button]', 'payaman_wishlist'); ?></p>
 			</td>
 		</tr>
 		<tr>
-			<th scope="row"><label for="display_position_button"><?php esc_html_e('Button Position', 'gridlywishlist'); ?></label></th>
+			<th scope="row"><label for="display_position_button"><?php esc_html_e('Button Position', 'payaman_wishlist'); ?></label></th>
 			<td>
 				<select name="display_position_button" id="display_position_button">
 					<?php
 					$button_positions = array(
-						'after_add_to_cart' => __('After Add to Cart', 'gridlywishlist'),
-						'overlay_top_left'  => __('Overlay Product Image', 'gridlywishlist'),
+						'after_add_to_cart' => __('After Add to Cart', 'payaman_wishlist'),
+						'overlay_top_left'  => __('Overlay Product Image', 'payaman_wishlist'),
 					);
-					$current_position = gridlywishlist_setting('display_position_button', 'after_add_to_cart');
+					$current_position = payaman_wishlist_setting('display_position_button', 'after_add_to_cart');
 					foreach ($button_positions as $value => $label) :
 					?>
 						<option value="<?php echo esc_attr($value); ?>" <?php selected($current_position, $value); ?>><?php echo esc_html($label); ?></option>
 					<?php endforeach; ?>
 				</select>
-				<p class="description"><?php esc_html_e('Control where the wishlist button is injected.', 'gridlywishlist'); ?></p>
+				<p class="description"><?php esc_html_e('Control where the wishlist button is injected.', 'payaman_wishlist'); ?></p>
 			</td>
 		</tr>
 		<tr>
-			<th scope="row"><label for="gridlywishlist_required_login"><?php esc_html_e('Required Login', 'gridlywishlist'); ?></label></th>
+			<th scope="row"><label for="payaman_wishlist_required_login"><?php esc_html_e('Required Login', 'payaman_wishlist'); ?></label></th>
 			<td>
-				<label class="gridlywishlist-switch">
-					<input type="checkbox" name="gridlywishlist_required_login" id="gridlywishlist_required_login" value="yes" <?php checked(gridlywishlist_setting('required_login'), 'yes'); ?> />
-					<span class="gridlywishlist-slider round"></span>
+				<label class="payaman_wishlist-switch">
+					<input type="checkbox" name="payaman_wishlist_required_login" id="payaman_wishlist_required_login" value="yes" <?php checked(payaman_wishlist_setting('required_login'), 'yes'); ?> />
+					<span class="payaman_wishlist-slider round"></span>
 				</label>
-				<p class="description"><?php esc_html_e('Users must be logged in to add to wishlist', 'gridlywishlist'); ?></p>
+				<p class="description"><?php esc_html_e('Users must be logged in to add to wishlist', 'payaman_wishlist'); ?></p>
 			</td>
 		</tr>
 		<tr>
-			<th scope="row"><label for="gridlywishlist_remove_after_add_to_cart"><?php esc_html_e('Remove After Add to Cart', 'gridlywishlist'); ?></label></th>
+			<th scope="row"><label for="payaman_wishlist_remove_after_add_to_cart"><?php esc_html_e('Remove After Add to Cart', 'payaman_wishlist'); ?></label></th>
 			<td>
-				<label class="gridlywishlist-switch">
-					<input type="checkbox" name="gridlywishlist_remove_after_add_to_cart" id="gridlywishlist_remove_after_add_to_cart" value="yes" <?php checked(gridlywishlist_setting('remove_after_add_to_cart'), 'yes'); ?> />
-					<span class="gridlywishlist-slider round"></span>
+				<label class="payaman_wishlist-switch">
+					<input type="checkbox" name="payaman_wishlist_remove_after_add_to_cart" id="payaman_wishlist_remove_after_add_to_cart" value="yes" <?php checked(payaman_wishlist_setting('remove_after_add_to_cart'), 'yes'); ?> />
+					<span class="payaman_wishlist-slider round"></span>
 				</label>
-				<p class="description"><?php esc_html_e('Automatically remove product from wishlist after adding to cart', 'gridlywishlist'); ?></p>
+				<p class="description"><?php esc_html_e('Automatically remove product from wishlist after adding to cart', 'payaman_wishlist'); ?></p>
 			</td>
 		</tr>
 		<tr>
-			<th scope="row"><?php esc_html_e('Marketing Alerts', 'gridlywishlist'); ?></th>
+			<th scope="row"><?php esc_html_e('Marketing Alerts', 'payaman_wishlist'); ?></th>
 			<td>
 				<label>
-					<input type="checkbox" name="enable_price_drop_alert" value="yes" <?php checked(gridlywishlist_setting('enable_price_drop_alert'), 'yes'); ?> />
-					<?php esc_html_e('Enable Price Drop Alerts', 'gridlywishlist'); ?>
+					<input type="checkbox" name="enable_price_drop_alert" value="yes" <?php checked(payaman_wishlist_setting('enable_price_drop_alert'), 'yes'); ?> />
+					<?php esc_html_e('Enable Price Drop Alerts', 'payaman_wishlist'); ?>
 				</label>
-				<p class="description"><?php esc_html_e('Send email to users when a product in their wishlist has a price drop.', 'gridlywishlist'); ?></p>
+				<p class="description"><?php esc_html_e('Send email to users when a product in their wishlist has a price drop.', 'payaman_wishlist'); ?></p>
 				<br />
 				<label>
-					<input type="checkbox" name="enable_stock_alert" value="yes" <?php checked(gridlywishlist_setting('enable_stock_alert'), 'yes'); ?> />
-					<?php esc_html_e('Enable Back in Stock Alerts', 'gridlywishlist'); ?>
+					<input type="checkbox" name="enable_stock_alert" value="yes" <?php checked(payaman_wishlist_setting('enable_stock_alert'), 'yes'); ?> />
+					<?php esc_html_e('Enable Back in Stock Alerts', 'payaman_wishlist'); ?>
 				</label>
-				<p class="description"><?php esc_html_e('Send email to users when an out-of-stock product in their wishlist becomes available.', 'gridlywishlist'); ?></p>
+				<p class="description"><?php esc_html_e('Send email to users when an out-of-stock product in their wishlist becomes available.', 'payaman_wishlist'); ?></p>
 			</td>
 		</tr>
 	</table>

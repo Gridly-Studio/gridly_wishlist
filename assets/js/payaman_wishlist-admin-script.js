@@ -1,5 +1,5 @@
 jQuery(function ($) {
-  $(".gridlywishlist_image_upload").on("click", function (event) {
+  $(".payaman_wishlist_image_upload").on("click", function (event) {
     // Uploading files
     var file_frame;
     var wp_media_post_id = wp.media.model.settings.post.id; // Store the old id
@@ -49,9 +49,9 @@ jQuery(function ($) {
     wp.media.model.settings.post.id = wp_media_post_id;
   });
 
-  function gridlywishlist_change_type(type) {
-    var text = $("#gridlywishlist_type_selected_text");
-    var image = $("#gridlywishlist_type_selected_image");
+  function payaman_wishlist_change_type(type) {
+    var text = $("#payaman_wishlist_type_selected_text");
+    var image = $("#payaman_wishlist_type_selected_image");
     if (type == "text") {
       text.show();
       image.hide();
@@ -61,34 +61,34 @@ jQuery(function ($) {
     }
   }
 
-  gridlywishlist_change_type($("#gridlywishlist_type").val());
+  payaman_wishlist_change_type($("#payaman_wishlist_type").val());
 
-  $("#gridlywishlist_type").on("change", function () {
-    gridlywishlist_change_type($(this).val());
+  $("#payaman_wishlist_type").on("change", function () {
+    payaman_wishlist_change_type($(this).val());
   });
 
-  $(".gridlywishlist-menu li a").on("click", function () {
-    gridlywishlist_change_section($(this).attr("href"));
+  $(".payaman_wishlist-menu li a").on("click", function () {
+    payaman_wishlist_change_section($(this).attr("href"));
   });
 
   if ($(location).attr("hash")) {
-    gridlywishlist_change_section($(location).attr("hash"));
+    payaman_wishlist_change_section($(location).attr("hash"));
   } else {
-    gridlywishlist_change_section("#tab-dashboard");
+    payaman_wishlist_change_section("#tab-dashboard");
   }
 
-  function gridlywishlist_change_section(id) {
-    $(".gridlywishlist-menu li a").removeClass("active");
+  function payaman_wishlist_change_section(id) {
+    $(".payaman_wishlist-menu li a").removeClass("active");
 
-    $('.gridlywishlist-menu li a[href="' + id + '"]').addClass("active");
-    $("#gridlywishlist-setting .form-section").hide().css("opacity", 0);
-    $("#gridlywishlist-setting " + id).show().animate({ opacity: 1 }, 300);
+    $('.payaman_wishlist-menu li a[href="' + id + '"]').addClass("active");
+    $("#payaman_wishlist-setting .form-section").hide().css("opacity", 0);
+    $("#payaman_wishlist-setting " + id).show().animate({ opacity: 1 }, 300);
 
     // Show/hide submit button based on tab
     if (id === "#tab-dashboard") {
-      $("#gridlywishlist-submit-wrapper").hide();
+      $("#payaman_wishlist-submit-wrapper").hide();
     } else {
-      $("#gridlywishlist-submit-wrapper").show();
+      $("#payaman_wishlist-submit-wrapper").show();
     }
   }
 

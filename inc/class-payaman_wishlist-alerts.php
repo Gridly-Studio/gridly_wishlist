@@ -1,8 +1,8 @@
 <?php
 /**
- * GridlyWishlist Alerts Class
+ * Payaman_Wishlist Alerts Class
  *
- * @package gridlywishlist
+ * @package payaman_wishlist
  * @version 1.0.0
  */
 
@@ -10,9 +10,9 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-if (! class_exists('GridlyWishlist_Alerts')) {
+if (! class_exists('Payaman_Wishlist_Alerts')) {
 
-	class GridlyWishlist_Alerts
+	class Payaman_Wishlist_Alerts
 	{
 		public function __construct()
 		{
@@ -28,7 +28,7 @@ if (! class_exists('GridlyWishlist_Alerts')) {
 		 */
 		public function handle_stock_change($product)
 		{
-			if (gridlywishlist_setting('enable_stock_alert') !== 'yes') {
+			if (payaman_wishlist_setting('enable_stock_alert') !== 'yes') {
 				return;
 			}
 
@@ -42,7 +42,7 @@ if (! class_exists('GridlyWishlist_Alerts')) {
 		 */
 		public function handle_product_update($product_id, $product)
 		{
-			if (gridlywishlist_setting('enable_price_drop_alert') !== 'yes') {
+			if (payaman_wishlist_setting('enable_price_drop_alert') !== 'yes') {
 				return;
 			}
 
@@ -54,12 +54,12 @@ if (! class_exists('GridlyWishlist_Alerts')) {
 			if ($product->is_on_sale()) {
 				// Simple logic: if it's on sale, notify once.
 				// To avoid spam, we should ideally track if we already sent an alert for this sale.
-				$last_alert = get_post_meta($product_id, '_gridlywishlist_last_price_alert', true);
+				$last_alert = get_post_meta($product_id, '_payaman_wishlist_last_price_alert', true);
 				$current_price = $product->get_price();
 
 				if ($last_alert != $current_price) {
 					$this->notify_users($product_id, 'price');
-					update_post_meta($product_id, '_gridlywishlist_last_price_alert', $current_price);
+					update_post_meta($product_id, '_payaman_wishlist_last_price_alert', $current_price);
 				}
 			}
 		}
@@ -69,7 +69,7 @@ if (! class_exists('GridlyWishlist_Alerts')) {
 		 */
 		private function notify_users($product_id, $type)
 		{
-			$user_ids = gridlywishlist_get_users_by_product($product_id);
+			$user_ids = payaman_wishlist_get_users_by_product($product_id);
 			if (empty($user_ids)) {
 				return;
 			}
@@ -87,17 +87,17 @@ if (! class_exists('GridlyWishlist_Alerts')) {
 				$message = '';
 
 				if ($type === 'stock') {
-					$subject = sprintf(__('Good news! %s is back in stock!', 'gridlywishlist'), $product_name);
+					$subject = sprintf(__('Good news! %s is back in stock!', 'payaman_wishlist'), $product_name);
 					$message = sprintf(
-						__("Hi %s,\n\nThe product '%s' in your wishlist is now back in stock. Grab it before it's gone again!\n\nView product: %s", 'gridlywishlist'),
+						__("Hi %s,\n\nThe product '%s' in your wishlist is now back in stock. Grab it before it's gone again!\n\nView product: %s", 'payaman_wishlist'),
 						$user->display_name,
 						$product_name,
 						$product_url
 					);
 				} else if ($type === 'price') {
-					$subject = sprintf(__('Price drop alert for %s!', 'gridlywishlist'), $product_name);
+					$subject = sprintf(__('Price drop alert for %s!', 'payaman_wishlist'), $product_name);
 					$message = sprintf(
-						__("Hi %s,\n\nGreat news! The price of '%s' in your wishlist has just dropped. Check it out now!\n\nView product: %s", 'gridlywishlist'),
+						__("Hi %s,\n\nGreat news! The price of '%s' in your wishlist has just dropped. Check it out now!\n\nView product: %s", 'payaman_wishlist'),
 						$user->display_name,
 						$product_name,
 						$product_url
@@ -111,5 +111,5 @@ if (! class_exists('GridlyWishlist_Alerts')) {
 		}
 	}
 
-	new GridlyWishlist_Alerts();
+	new Payaman_Wishlist_Alerts();
 }
