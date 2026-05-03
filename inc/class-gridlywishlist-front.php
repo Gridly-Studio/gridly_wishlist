@@ -477,25 +477,39 @@ if (! class_exists('GridlyWishlist_Front')) {
 			$current_collection_id = $active_collection ? $active_collection : (is_user_logged_in() ? gridlywishlist_get_default_collection_id(get_current_user_id()) : '');
 ?>
 			<div class="gridlywishlist-collections-container">
-				<div class="gridlywishlist-collections-nav">
-					<ul class="gridlywishlist-collection-tabs">
-						<?php foreach ($collections as $collection) : 
-							$is_active = $collection['id'] === $current_collection_id;
-							$is_public = ! empty($collection['is_public']);
-						?>
-							<li class="<?php echo $is_active ? 'is-active' : ''; ?>">
-								<a href="<?php echo esc_url(add_query_arg('collection', $collection['id'])); ?>" class="gridlywishlist-collection-link <?php echo $is_active ? 'active' : ''; ?>" data-collection-id="<?php echo esc_attr($collection['id']); ?>">
-									<?php echo esc_html($collection['name']); ?> 
-									<span class="gridlywishlist-tab-count">(<?php echo esc_html($collection['count']); ?>)</span>
-								</a>
-								<?php if ($is_active && is_user_logged_in()) : ?>
-									<button type="button" class="gridlywishlist-collection-visibility" data-collection-id="<?php echo esc_attr($collection['id']); ?>" data-public="<?php echo $is_public ? '1' : '0'; ?>" title="<?php echo $is_public ? esc_attr__('Make Private', 'gridlywishlist') : esc_attr__('Make Public', 'gridlywishlist'); ?>">
-										<?php echo $is_public ? '🌐' : '🔒'; ?>
-									</button>
-								<?php endif; ?>
-							</li>
-						<?php endforeach; ?>
-					</ul>
+				<div class="gridlywishlist-collections-header">
+					<div class="gridlywishlist-collections-nav">
+						<ul class="gridlywishlist-collection-tabs">
+							<?php foreach ($collections as $collection) : 
+								$is_active = $collection['id'] === $current_collection_id;
+								$is_public = ! empty($collection['is_public']);
+								$is_default = $collection['id'] === gridlywishlist_get_default_collection_id(get_current_user_id());
+							?>
+								<li class="<?php echo $is_active ? 'is-active' : ''; ?>">
+									<a href="<?php echo esc_url(add_query_arg('collection', $collection['id'])); ?>" class="gridlywishlist-collection-link <?php echo $is_active ? 'active' : ''; ?>" data-collection-id="<?php echo esc_attr($collection['id']); ?>">
+										<?php echo esc_html($collection['name']); ?> 
+										<span class="gridlywishlist-tab-count">(<?php echo esc_html($collection['count']); ?>)</span>
+									</a>
+									<?php if ($is_active && is_user_logged_in()) : ?>
+										<div class="gridlywishlist-collection-quick-actions">
+											<button type="button" class="gridlywishlist-collection-rename" data-id="<?php echo esc_attr($collection['id']); ?>" data-name="<?php echo esc_attr($collection['name']); ?>" title="<?php esc_attr_e('Rename', 'gridlywishlist'); ?>">✏️</button>
+											<button type="button" class="gridlywishlist-collection-visibility" data-collection-id="<?php echo esc_attr($collection['id']); ?>" data-public="<?php echo $is_public ? '1' : '0'; ?>" title="<?php echo $is_public ? esc_attr__('Make Private', 'gridlywishlist') : esc_attr__('Make Public', 'gridlywishlist'); ?>">
+												<?php echo $is_public ? '🌐' : '🔒'; ?>
+											</button>
+											<?php if (! $is_default) : ?>
+												<button type="button" class="gridlywishlist-collection-delete" data-id="<?php echo esc_attr($collection['id']); ?>" title="<?php esc_attr_e('Delete', 'gridlywishlist'); ?>">🗑️</button>
+											<?php endif; ?>
+										</div>
+									<?php endif; ?>
+								</li>
+							<?php endforeach; ?>
+							<?php if (is_user_logged_in()) : ?>
+								<li class="gridlywishlist-add-new-tab">
+									<button type="button" class="gridlywishlist-collection-add-new" title="<?php esc_attr_e('Add New Collection', 'gridlywishlist'); ?>">+ <?php esc_html_e('New', 'gridlywishlist'); ?></button>
+								</li>
+							<?php endif; ?>
+						</ul>
+					</div>
 				</div>
 
 				<?php 
@@ -638,6 +652,8 @@ if (! class_exists('GridlyWishlist_Front')) {
 
 			$wishlist_url = gridlywishlist_get_wishlist_page_url();
 ?>
+			<div id="gridlywishlist-toast" class="gridlywishlist-toast" aria-live="polite"></div>
+			
 			<div id="gridlywishlist-modal" class="gridlywishlist-modal" aria-hidden="true" data-view="message">
 				<div class="gridlywishlist-modal__backdrop" data-gridlywishlist-close></div>
 				<div class="gridlywishlist-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="gridlywishlist-modal-message">
@@ -647,35 +663,6 @@ if (! class_exists('GridlyWishlist_Front')) {
 							<div class="gridlywishlist-modal__actions">
 								<a href="<?php echo esc_url($wishlist_url); ?>" class="button gridlywishlist-modal__view-link"><?php esc_html_e('View Wishlist', 'gridlywishlist'); ?></a>
 								<button type="button" class="button gridlywishlist-modal__close" data-gridlywishlist-close><?php esc_html_e('Close', 'gridlywishlist'); ?></button>
-							</div>
-						</div>
-						<div class="gridlywishlist-modal__view gridlywishlist-modal__view--manage">
-							<h3><?php esc_html_e('Simpan ke Koleksi', 'gridlywishlist'); ?></h3>
-							<div class="gridlywishlist-modal__manage-content">
-								<div class="gridlywishlist-collection-select-wrapper">
-									<label class="gridlywishlist-collection-select-label">
-										<span><?php esc_html_e('Pilih Koleksi', 'gridlywishlist'); ?></span>
-										<select class="gridlywishlist-collection-select"></select>
-									</label>
-									<a href="#" class="gridlywishlist-collection-create-toggle">+ <?php esc_html_e('Koleksi Baru', 'gridlywishlist'); ?></a>
-								</div>
-								
-								<div class="gridlywishlist-collection-create" style="display: none;">
-									<h4><?php esc_html_e('Buat Koleksi Baru', 'gridlywishlist'); ?></h4>
-									<input type="text" class="gridlywishlist-collection-name" placeholder="<?php esc_attr_e('Nama koleksi', 'gridlywishlist'); ?>" />
-									<label class="gridlywishlist-collection-public-label">
-										<input type="checkbox" class="gridlywishlist-collection-public" />
-										<?php esc_html_e('Jadikan koleksi publik', 'gridlywishlist'); ?>
-									</label>
-									<div class="gridlywishlist-collection-create-actions">
-										<button type="button" class="button button-primary gridlywishlist-collection-create-submit"><?php esc_html_e('Buat', 'gridlywishlist'); ?></button>
-										<button type="button" class="button gridlywishlist-collection-create-cancel"><?php esc_html_e('Batal', 'gridlywishlist'); ?></button>
-									</div>
-								</div>
-							</div>
-							<div class="gridlywishlist-modal__manage-actions">
-								<button type="button" class="button button-primary gridlywishlist-collection-apply"><?php esc_html_e('Simpan', 'gridlywishlist'); ?></button>
-								<button type="button" class="button gridlywishlist-modal__close" data-gridlywishlist-close><?php esc_html_e('Batal', 'gridlywishlist'); ?></button>
 							</div>
 						</div>
 					</div>

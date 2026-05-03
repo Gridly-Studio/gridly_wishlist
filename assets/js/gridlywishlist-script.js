@@ -3,6 +3,20 @@ jQuery(function ($) {
   function showAlert(message) {
     window.alert(message || gridlywishlist_object.i18n.generic_error);
   }
+  function showToast(message) {
+    var $toast = $("#gridlywishlist-toast");
+    if (!$toast.length) {
+      $toast = $(
+        '<div id="gridlywishlist-toast" class="gridlywishlist-toast"></div>',
+      );
+      $("body").append($toast);
+    }
+    $toast.text(message).addClass("is-visible");
+    setTimeout(function () {
+      $toast.removeClass("is-visible");
+    }, 3000);
+  }
+
   var $modal = $("#gridlywishlist-modal");
   var collectionsData = gridlywishlist_object.collections || [];
   var defaultCollectionId = gridlywishlist_object.default_collection_id || "";
@@ -134,23 +148,16 @@ jQuery(function ($) {
     renderCollectionOptions(pendingCollectionId || defaultCollectionId);
   }
 
-  function openCollectionSelector(
-    productId,
-    collectionId,
-    action,
-    variationId,
-  ) {
-    if (!canManageCollections) {
-      triggerWishlistAction(action, productId, collectionId, variationId);
-      return;
-    }
-    pendingProductId = productId;
-    pendingAction = action || "insert";
-    pendingVariationId = variationId || 0;
-    pendingCollectionId = collectionId || defaultCollectionId;
-    renderCollectionOptions(pendingCollectionId);
-    ensureModal().removeClass("is-message").addClass("is-manage");
-    showModalView("manage");
+  function handleWishlistClick(productId, collectionId, action, variationId) {
+    // Skip modal, use default collection
+    var actionToUse = action || "insert";
+    var collectionToUse = collectionId || defaultCollectionId;
+    triggerWishlistAction(actionToUse, productId, collectionToUse, variationId);
+  }
+
+  function triggerWishlistAction(action, productId, collectionId, variationId) {
+    updateButtonCollection(productId, collectionId);
+    sendWishlistRequest(action, productId, collectionId, variationId);
   }
 
   function updateButtonCollection(productId, collectionId) {
@@ -176,7 +183,7 @@ jQuery(function ($) {
     }
     $(selector).show();
     if (message) {
-      showAlert(message);
+      showToast(message);
     }
   }
 
@@ -186,11 +193,10 @@ jQuery(function ($) {
     collection_id,
     variation_id,
   ) {
-    $(
-      ".gridlywishlist .gridlywishlist-loading[data-product-id=" +
-        product_id +
-        "]",
-    ).addClass("on");
+    var $wrapper = $('.gridlywishlist[data-product-id="' + product_id + '"]');
+    $wrapper.find(".gridlywishlist-loading").addClass("on");
+    $wrapper.find(".gridlywishlist-button").hide();
+
     var dataPost = {
       action: "update_gridlywishlist",
       fav_action: action,
@@ -199,12 +205,14 @@ jQuery(function ($) {
       collection_id: collection_id || "",
       variation_id: variation_id || 0,
     };
+
     $.ajax({
       url: gridlywishlist_object.ajax_url,
       type: "POST",
       data: dataPost,
       success: function (response) {
-        $(".gridlywishlist .gridlywishlist-loading").removeClass("on");
+        $wrapper.find(".gridlywishlist-loading").removeClass("on");
+        $wrapper.find(".gridlywishlist-button").show();
 
         if (!response || !response.success) {
           var errorMessage =
@@ -225,8 +233,7 @@ jQuery(function ($) {
           '.gridlywishlist[data-product-id="' + product_id + '"]';
         var $currentButton = $(buttonSelector);
         var $currentWrapper = $(wrapperSelector);
-        var offText = formatLabel(gridlywishlist_object.off_val, count);
-        var onText = formatLabel(gridlywishlist_object.on_val, count);
+
         var collectionState = data.collection_state || data.state;
         var collections = data.collections;
 
@@ -236,24 +243,28 @@ jQuery(function ($) {
 
         if (collectionState === "on") {
           if (gridlywishlist_object.enable_add_success_message === "yes") {
-            openMessageModal(gridlywishlist_object.add_success_message);
+            showToast(gridlywishlist_object.add_success_message);
           }
           $currentButton.removeClass("off").addClass("on");
+          $currentWrapper.removeClass("off").addClass("on");
+
           if (gridlywishlist_object.button_type === "text") {
-            $currentButton.text(onText).show();
+            $currentButton.text(formatLabel(gridlywishlist_object.on_val, count));
           } else {
-            $currentButton.attr("src", gridlywishlist_object.on_val).show();
+            $currentButton.attr("src", gridlywishlist_object.on_val);
             $currentWrapper.find(".count").text(count);
           }
         } else {
           if (gridlywishlist_object.enable_remove_success_message === "yes") {
-            openMessageModal(gridlywishlist_object.remove_success_message);
+            showToast(gridlywishlist_object.remove_success_message);
           }
           $currentButton.removeClass("on").addClass("off");
+          $currentWrapper.removeClass("on").addClass("off");
+
           if (gridlywishlist_object.button_type === "text") {
-            $currentButton.text(offText).show();
+            $currentButton.text(formatLabel(gridlywishlist_object.off_val, count));
           } else {
-            $currentButton.attr("src", gridlywishlist_object.off_val).show();
+            $currentButton.attr("src", gridlywishlist_object.off_val);
             $currentWrapper.find(".count").text(count);
           }
           removeRowFromTable(product_id);
@@ -264,6 +275,8 @@ jQuery(function ($) {
         }
       },
       error: function () {
+        $wrapper.find(".gridlywishlist-loading").removeClass("on");
+        $wrapper.find(".gridlywishlist-button").show();
         handleAjaxError(gridlywishlist_object.error_message, product_id);
       },
     });
@@ -435,7 +448,7 @@ jQuery(function ($) {
         modal.find(".gridlywishlist-collection-create").hide();
         modal.find(".gridlywishlist-collection-select-wrapper").show();
         modal.find(".gridlywishlist-modal__manage-actions").show();
-        
+
         renderCollectionOptions(pendingCollectionId);
       },
       error: function () {
@@ -476,11 +489,7 @@ jQuery(function ($) {
       .attr("data-variation-id", variationId || "");
 
     if (!isActive) {
-      if (canManageCollections) {
-        openCollectionSelector(productId, collectionId, "insert", variationId);
-        return;
-      }
-      triggerWishlistAction("insert", productId, collectionId, variationId);
+      handleWishlistClick(productId, collectionId, "insert", variationId);
     } else {
       triggerWishlistAction("delete", productId, collectionId, variationId);
     }
@@ -709,15 +718,102 @@ jQuery(function ($) {
   );
 
   // Visibility Toggle
-  $(document).on("click", ".gridlywishlist-collection-visibility", function (e) {
+  $(document).on(
+    "click",
+    ".gridlywishlist-collection-visibility",
+    function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      var $btn = $(this);
+      var collectionId = $btn.data("collection-id");
+      var isPublic = $btn.data("public") == "1";
+      var newPublic = !isPublic;
+
+      $btn.prop("disabled", true).css("opacity", "0.5");
+
+      $.ajax({
+        url: gridlywishlist_object.ajax_url,
+        type: "POST",
+        data: {
+          action: "gridlywishlist_collection_update",
+          nonce: gridlywishlist_object.nonce,
+          collection_id: collectionId,
+          is_public: newPublic ? "true" : "false",
+        },
+        success: function (response) {
+          if (response.success) {
+            // Simply reload to reflect changes
+            window.location.reload();
+          } else {
+            alert(response.data.message || "Error updating collection.");
+            $btn.prop("disabled", false).css("opacity", "1");
+          }
+        },
+        error: function () {
+          alert("Network error.");
+          $btn.prop("disabled", false).css("opacity", "1");
+        },
+      });
+    },
+  );
+
+  // Copy Share URL
+  $(document).on("click", ".gridlywishlist-copy-share-url", function (e) {
     e.preventDefault();
-    e.stopPropagation();
+    var url = $(this).data("url");
+    var $btn = $(this);
+
+    var tempInput = $("<input>");
+    $("body").append(tempInput);
+    tempInput.val(url).select();
+    document.execCommand("copy");
+    tempInput.remove();
+
+    showToast("Link copied to clipboard!");
+  });
+
+  // Wishlist Page Collection Management
+  $(document).on("click", ".gridlywishlist-collection-add-new", function (e) {
+    e.preventDefault();
+    var name = prompt(gridlywishlist_object.i18n.fill_collection_name);
+    if (!name) return;
 
     var $btn = $(this);
-    var collectionId = $btn.data("collection-id");
-    var isPublic = $btn.data("public") == "1";
-    var newPublic = !isPublic;
+    $btn.prop("disabled", true).css("opacity", "0.5");
 
+    $.ajax({
+      url: gridlywishlist_object.ajax_url,
+      type: "POST",
+      data: {
+        action: "gridlywishlist_collection_create",
+        nonce: gridlywishlist_object.nonce,
+        name: name,
+        is_public: false,
+      },
+      success: function (response) {
+        if (response.success) {
+          window.location.reload();
+        } else {
+          alert(response.data.message || "Error creating collection.");
+          $btn.prop("disabled", false).css("opacity", "1");
+        }
+      },
+      error: function () {
+        alert("Network error.");
+        $btn.prop("disabled", false).css("opacity", "1");
+      },
+    });
+  });
+
+  $(document).on("click", ".gridlywishlist-collection-rename", function (e) {
+    e.preventDefault();
+    var id = $(this).data("id");
+    var currentName = $(this).data("name");
+    var newName = prompt("Enter new name:", currentName);
+    if (!newName || newName === currentName) return;
+
+    var $btn = $(this);
     $btn.prop("disabled", true).css("opacity", "0.5");
 
     $.ajax({
@@ -726,12 +822,11 @@ jQuery(function ($) {
       data: {
         action: "gridlywishlist_collection_update",
         nonce: gridlywishlist_object.nonce,
-        collection_id: collectionId,
-        is_public: newPublic ? "true" : "false",
+        collection_id: id,
+        name: newName,
       },
       success: function (response) {
         if (response.success) {
-          // Simply reload to reflect changes
           window.location.reload();
         } else {
           alert(response.data.message || "Error updating collection.");
@@ -745,87 +840,107 @@ jQuery(function ($) {
     });
   });
 
-  // Copy Share URL
-  $(document).on("click", ".gridlywishlist-copy-share-url", function (e) {
+  $(document).on("click", ".gridlywishlist-collection-delete", function (e) {
     e.preventDefault();
-    var url = $(this).data("url");
+    if (
+      !confirm(
+        "Are you sure you want to delete this collection? Products will be moved to the default collection.",
+      )
+    )
+      return;
+
+    var id = $(this).data("id");
     var $btn = $(this);
-    var originalText = $btn.text();
+    $btn.prop("disabled", true).css("opacity", "0.5");
 
-    var tempInput = $("<input>");
-    $("body").append(tempInput);
-    tempInput.val(url).select();
-    document.execCommand("copy");
-    tempInput.remove();
+    $.ajax({
+      url: gridlywishlist_object.ajax_url,
+      type: "POST",
+      data: {
+        action: "gridlywishlist_collection_delete",
+        nonce: gridlywishlist_object.nonce,
+        collection_id: id,
+      },
+      success: function (response) {
+        if (response.success) {
+          // Redirect to default collection if we deleted the current one
+          var url = new URL(window.location.href);
+          url.searchParams.delete("collection");
+          window.location.href = url.toString();
+        } else {
+          alert(response.data.message || "Error deleting collection.");
+          $btn.prop("disabled", false).css("opacity", "1");
+        }
+      },
+      error: function () {
+        alert("Network error.");
+        $btn.prop("disabled", false).css("opacity", "1");
+      },
+    });
 
-    $btn.text("Copied!");
-    setTimeout(function () {
-      $btn.text(originalText);
-    }, 2000);
-  });
-
-  // Handle WooCommerce Added to Cart
-  $(document.body).on(
-    "added_to_cart",
-    function (event, fragments, cart_hash, $button) {
-      if (gridlywishlist_object.remove_after_add_to_cart !== "yes") {
-        return;
-      }
-
-      var productId = $button.data("product_id");
-      if (!productId) {
-        // Fallback for some themes
-        productId = $button.attr("value");
-      }
-
-      if (!productId) return;
-
-      // Find all wishlist buttons for this product and toggle them off
-      $(
-        '.gridlywishlist-button[data-product-id="' +
-          productId +
-          '"], .gridlywishlist[data-product-id="' +
-          productId +
-          '"]',
-      ).each(function () {
-        var $btn = $(this);
-        $btn.removeClass("on").addClass("off");
-        $btn.find("span").text(gridlywishlist_object.off_val);
-        // If image type
-        if (gridlywishlist_object.button_type === "image") {
-          $btn.find("img").attr("src", gridlywishlist_object.off_val);
+    // Handle WooCommerce Added to Cart
+    $(document.body).on(
+      "added_to_cart",
+      function (event, fragments, cart_hash, $button) {
+        if (gridlywishlist_object.remove_after_add_to_cart !== "yes") {
+          return;
         }
 
-        // Update count if visible
-        if (gridlywishlist_object.gridlywishlist_count === "yes") {
-          var $countLabel = $btn.find(".gridlywishlist-count-label");
-          if ($countLabel.length) {
-            // Since it was added to cart, and we remove from wishlist, 
-            // the count for this specific product on the button might need recalculation.
-            // But usually the button shows total wishlist count or product-specific?
-            // Actually our formatLabel adds count in brackets.
+        var productId = $button.data("product_id");
+        if (!productId) {
+          // Fallback for some themes
+          productId = $button.attr("value");
+        }
+
+        if (!productId) return;
+
+        // Find all wishlist buttons for this product and toggle them off
+        $(
+          '.gridlywishlist-button[data-product-id="' +
+            productId +
+            '"], .gridlywishlist[data-product-id="' +
+            productId +
+            '"]',
+        ).each(function () {
+          var $btn = $(this);
+          $btn.removeClass("on").addClass("off");
+          $btn.find("span").text(gridlywishlist_object.off_val);
+          // If image type
+          if (gridlywishlist_object.button_type === "image") {
+            $btn.find("img").attr("src", gridlywishlist_object.off_val);
           }
-        }
-      });
 
-      // If we are on the wishlist page, remove the row
-      var $wishlistRow = $(
-        '.gridlywishlist-table tr[data-product-id="' + productId + '"]',
-      );
-      if ($wishlistRow.length) {
-        $wishlistRow.fadeOut(300, function () {
-          $(this).remove();
-          // Check if table is empty
-          if ($(".gridlywishlist-table tbody tr").length === 0) {
-            var emptyMsg = $(".gridlywishlist-table-wrapper").data(
-              "empty-message",
-            );
-            $(".gridlywishlist-table-wrapper").html(
-              '<p class="gridlywishlist-empty">' + emptyMsg + "</p>",
-            );
+          // Update count if visible
+          if (gridlywishlist_object.gridlywishlist_count === "yes") {
+            var $countLabel = $btn.find(".gridlywishlist-count-label");
+            if ($countLabel.length) {
+              // Since it was added to cart, and we remove from wishlist,
+              // the count for this specific product on the button might need recalculation.
+              // But usually the button shows total wishlist count or product-specific?
+              // Actually our formatLabel adds count in brackets.
+            }
           }
         });
-      }
-    },
-  );
+
+        // If we are on the wishlist page, remove the row
+        var $wishlistRow = $(
+          '.gridlywishlist-table tr[data-product-id="' + productId + '"]',
+        );
+        if ($wishlistRow.length) {
+          $wishlistRow.fadeOut(300, function () {
+            $(this).remove();
+            // Check if table is empty
+            if ($(".gridlywishlist-table tbody tr").length === 0) {
+              var emptyMsg = $(".gridlywishlist-table-wrapper").data(
+                "empty-message",
+              );
+              $(".gridlywishlist-table-wrapper").html(
+                '<p class="gridlywishlist-empty">' + emptyMsg + "</p>",
+              );
+            }
+          });
+        }
+      },
+    );
+  });
 });
