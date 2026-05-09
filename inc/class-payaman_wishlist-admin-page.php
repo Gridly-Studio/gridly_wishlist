@@ -49,7 +49,7 @@ if (! class_exists('Payaman_Wishlist_Admin_Page')) {
 					'manage_options',
 					$parent_slug,
 					array($this, 'render_payamanstudio_dashboard'),
-					PAYAMAN_WISHLIST_URL . '/assets/images/payaman_icon.svg',
+					PAYAMAN_WISHLIST_URL . '/assets/images/icon_payaman.svg',
 					58
 				);
 			}
