@@ -65,17 +65,26 @@ $promo_nonce = wp_create_nonce('payaman_wishlist_promo_email');
                                 <?php endif; ?>
                             </td>
                         <td>
-                            <span class="badge" style="background: <?php echo $c['status'] === 'sent' ? '#46b450' : ($c['status'] === 'scheduled' ? '#0073aa' : '#ccc'); ?>; color: #fff; padding: 2px 10px; border-radius: 10px;">
+                            <span class="badge" style="background: <?php echo $c['status'] === 'sent' ? '#46b450' : ($c['status'] === 'scheduled' ? '#0073aa' : ($c['status'] === 'paused' ? '#f0ad4e' : '#ccc')); ?>; color: #fff; padding: 2px 10px; border-radius: 10px;">
                                 <?php echo esc_html(ucfirst($c['status'])); ?>
                             </span>
                         </td>
                         <td><?php echo esc_html($c['total_sent']); ?>/<?php echo esc_html($c['total_targeted']); ?></td>
                         <td><?php echo esc_html($c['created_at']); ?></td>
-                        <td>
+                        <td style="white-space: nowrap;">
                             <button type="button" class="button button-small payaman-edit-campaign" data-id="<?php echo esc_attr($c['id']); ?>">
                                 <?php esc_html_e('Edit', 'payaman_wishlist'); ?>
                             </button>
-                            <?php if ($c['status'] !== 'sent' || ! empty($c['repeat_interval'])) : ?>
+                            <?php if ($c['status'] === 'scheduled') : ?>
+                                <button type="button" class="button button-small payaman-pause-campaign" data-id="<?php echo esc_attr($c['id']); ?>">
+                                    <?php esc_html_e('Pause', 'payaman_wishlist'); ?>
+                                </button>
+                            <?php elseif ($c['status'] === 'paused') : ?>
+                                <button type="button" class="button button-small payaman-resume-campaign" data-id="<?php echo esc_attr($c['id']); ?>">
+                                    <?php esc_html_e('Resume', 'payaman_wishlist'); ?>
+                                </button>
+                            <?php endif; ?>
+                            <?php if (($c['status'] !== 'sent' && $c['status'] !== 'paused') || ! empty($c['repeat_interval'])) : ?>
                                 <button type="button" class="button button-small payaman-send-campaign" data-id="<?php echo esc_attr($c['id']); ?>">
                                     <?php esc_html_e('Send Now', 'payaman_wishlist'); ?>
                                 </button>
@@ -425,12 +434,19 @@ jQuery(function($) {
             }
 
             $.each(res.data, function(i, c) {
-                var statusColor = c.status === 'sent' ? '#46b450' : (c.status === 'scheduled' ? '#0073aa' : '#ccc');
+                var statusColor = c.status === 'sent' ? '#46b450' : (c.status === 'scheduled' ? '#0073aa' : (c.status === 'paused' ? '#f0ad4e' : '#ccc'));
                 var actions = '';
+                var cap = function(s) { return s.charAt(0).toUpperCase() + s.slice(1); };
 
                 actions += '<button type="button" class="button button-small payaman-edit-campaign" data-id="' + c.id + '"><?php echo esc_js(__('Edit', 'payaman_wishlist')); ?></button> ';
 
-                if (c.status !== 'sent' || c.repeat_interval) {
+                if (c.status === 'scheduled') {
+                    actions += '<button type="button" class="button button-small payaman-pause-campaign" data-id="' + c.id + '"><?php echo esc_js(__('Pause', 'payaman_wishlist')); ?></button> ';
+                } else if (c.status === 'paused') {
+                    actions += '<button type="button" class="button button-small payaman-resume-campaign" data-id="' + c.id + '"><?php echo esc_js(__('Resume', 'payaman_wishlist')); ?></button> ';
+                }
+
+                if ((c.status !== 'sent' && c.status !== 'paused') || c.repeat_interval) {
                     actions += '<button type="button" class="button button-small payaman-send-campaign" data-id="' + c.id + '"><?php echo esc_js(__('Send Now', 'payaman_wishlist')); ?></button> ';
                 }
 
@@ -443,7 +459,7 @@ jQuery(function($) {
                     '<td>' + (c.product_ids ? c.product_ids.length : 0) + '</td>' +
                     '<td>' + c.type_display + '</td>' +
                     '<td>' + c.next_send_display + '</td>' +
-                    '<td><span class="badge" style="background:' + statusColor + ';color:#fff;padding:2px 10px;border-radius:10px;">' + c.status.charAt(0).toUpperCase() + c.status.slice(1) + '</span></td>' +
+                    '<td><span class="badge" style="background:' + statusColor + ';color:#fff;padding:2px 10px;border-radius:10px;">' + cap(c.status) + '</span></td>' +
                     '<td>' + c.total_sent + '/' + c.total_targeted + '</td>' +
                     '<td>' + c.created_at + '</td>' +
                     '<td>' + actions + '</td>' +
@@ -506,6 +522,40 @@ jQuery(function($) {
                 showStatus('<?php echo esc_js(__('Campaign deleted.', 'payaman_wishlist')); ?>', 'success');
             } else {
                 showStatus(res.data ? res.data.message : '<?php echo esc_js(__('Error deleting campaign.', 'payaman_wishlist')); ?>', 'error');
+            }
+        });
+    });
+
+    $(document).on('click', '.payaman-pause-campaign', function() {
+        var id = $(this).data('id');
+
+        $.post(ajaxurl, {
+            action: 'payaman_wishlist_pause_campaign',
+            campaign_id: id,
+            nonce: promoNonce
+        }, function(res) {
+            if (res.success) {
+                showStatus(res.data.message, 'success');
+                refreshTable();
+            } else {
+                showStatus(res.data ? res.data.message : '<?php echo esc_js(__('Error.', 'payaman_wishlist')); ?>', 'error');
+            }
+        });
+    });
+
+    $(document).on('click', '.payaman-resume-campaign', function() {
+        var id = $(this).data('id');
+
+        $.post(ajaxurl, {
+            action: 'payaman_wishlist_resume_campaign',
+            campaign_id: id,
+            nonce: promoNonce
+        }, function(res) {
+            if (res.success) {
+                showStatus(res.data.message, 'success');
+                refreshTable();
+            } else {
+                showStatus(res.data ? res.data.message : '<?php echo esc_js(__('Error.', 'payaman_wishlist')); ?>', 'error');
             }
         });
     });

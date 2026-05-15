@@ -31,6 +31,8 @@ if (! class_exists('Payaman_Wishlist_AJAX')) {
 			add_action('wp_ajax_payaman_wishlist_delete_campaign', array($this, 'ajax_delete_campaign'));
 			add_action('wp_ajax_payaman_wishlist_process_due', array($this, 'ajax_process_due'));
 			add_action('wp_ajax_payaman_wishlist_get_campaigns', array($this, 'ajax_get_campaigns'));
+			add_action('wp_ajax_payaman_wishlist_pause_campaign', array($this, 'ajax_pause_campaign'));
+			add_action('wp_ajax_payaman_wishlist_resume_campaign', array($this, 'ajax_resume_campaign'));
 		}
 
 		public function ajax_update_payaman_wishlist_callback()
@@ -466,6 +468,50 @@ if (! class_exists('Payaman_Wishlist_AJAX')) {
 		}
 
 		wp_send_json_success($campaigns);
+	}
+
+	public function ajax_pause_campaign()
+	{
+		check_ajax_referer('payaman_wishlist_promo_email', 'nonce');
+
+		if (! current_user_can('manage_options')) {
+			wp_send_json_error(array('message' => __('Insufficient permissions.', 'payaman_wishlist')), 403);
+		}
+
+		$campaign_id = isset($_POST['campaign_id']) ? absint(wp_unslash($_POST['campaign_id'])) : 0;
+		if (! $campaign_id) {
+			wp_send_json_error(array('message' => __('Invalid campaign.', 'payaman_wishlist')), 400);
+		}
+
+		$campaigns = new Payaman_Wishlist_Campaigns();
+		$campaigns->pause($campaign_id);
+
+		wp_send_json_success(array('message' => __('Campaign paused.', 'payaman_wishlist')));
+	}
+
+	public function ajax_resume_campaign()
+	{
+		check_ajax_referer('payaman_wishlist_promo_email', 'nonce');
+
+		if (! current_user_can('manage_options')) {
+			wp_send_json_error(array('message' => __('Insufficient permissions.', 'payaman_wishlist')), 403);
+		}
+
+		$campaign_id = isset($_POST['campaign_id']) ? absint(wp_unslash($_POST['campaign_id'])) : 0;
+		if (! $campaign_id) {
+			wp_send_json_error(array('message' => __('Invalid campaign.', 'payaman_wishlist')), 400);
+		}
+
+		$campaigns = new Payaman_Wishlist_Campaigns();
+		$result = $campaigns->resume($campaign_id);
+
+		if (! $result) {
+			wp_send_json_error(array('message' => __('Cannot resume this campaign.', 'payaman_wishlist')), 400);
+		}
+
+		$message = __('Campaign resumed. It will be processed at the next scheduled time.', 'payaman_wishlist');
+
+		wp_send_json_success(array('message' => $message));
 	}
 
 	public function ajax_process_due()

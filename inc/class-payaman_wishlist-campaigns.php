@@ -270,6 +270,46 @@ if (! class_exists('Payaman_Wishlist_Campaigns')) {
 			return gmdate('Y-m-d H:i:s', $time);
 		}
 
+		public function pause($id)
+		{
+			global $wpdb;
+			return $wpdb->update(
+				$this->table,
+				array('status' => 'paused'),
+				array('id' => $id),
+				array('%s'),
+				array('%d')
+			);
+		}
+
+		public function resume($id)
+		{
+			global $wpdb;
+
+			$campaign = $this->get($id);
+			if (! $campaign || $campaign['send_type'] !== 'scheduled') {
+				return false;
+			}
+
+			$now_utc = gmdate('Y-m-d H:i:s');
+			$scheduled_at = $campaign['scheduled_at'];
+
+			if ($scheduled_at && $scheduled_at <= $now_utc) {
+				$scheduled_at = gmdate('Y-m-d H:i:s', strtotime('+1 minute'));
+			}
+
+			return $wpdb->update(
+				$this->table,
+				array(
+					'status'       => 'scheduled',
+					'scheduled_at' => $scheduled_at,
+				),
+				array('id' => $id),
+				array('%s', '%s'),
+				array('%d')
+			);
+		}
+
 		public function process_due()
 		{
 			$due = $this->get_due();
