@@ -118,6 +118,9 @@ function payaman_wishlist_maybe_install_tables()
 		body TEXT NOT NULL,
 		product_ids TEXT NOT NULL,
 		status VARCHAR(20) NOT NULL DEFAULT 'draft',
+		send_type VARCHAR(20) NOT NULL DEFAULT 'immediate',
+		scheduled_at DATETIME NULL,
+		repeat_interval VARCHAR(20) NOT NULL DEFAULT '',
 		total_targeted INT UNSIGNED NOT NULL DEFAULT 0,
 		total_sent INT UNSIGNED NOT NULL DEFAULT 0,
 		created_by BIGINT(20) UNSIGNED NOT NULL DEFAULT 0,
@@ -153,6 +156,37 @@ function payaman_wishlist_maybe_run_migrations()
 	if (empty($has_column)) {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$wpdb->query("ALTER TABLE {$items_table} ADD COLUMN variation_id BIGINT(20) UNSIGNED NOT NULL DEFAULT 0 AFTER product_id");
+	}
+
+	// v2.3.0 — Add scheduling columns to campaigns table.
+	$campaigns_table = payaman_wishlist_get_table_name('campaigns');
+	$table_exists = $wpdb->get_var("SHOW TABLES LIKE '{$campaigns_table}'");
+	if ($table_exists) {
+		$cols = array(
+			'send_type'       => "ALTER TABLE {$campaigns_table} ADD COLUMN send_type VARCHAR(20) NOT NULL DEFAULT 'immediate' AFTER status",
+			'scheduled_at'    => "ALTER TABLE {$campaigns_table} ADD COLUMN scheduled_at DATETIME NULL AFTER send_type",
+			'repeat_interval' => "ALTER TABLE {$campaigns_table} ADD COLUMN repeat_interval VARCHAR(20) NOT NULL DEFAULT '' AFTER scheduled_at",
+		);
+		foreach ($cols as $col => $sql) {
+			$exists = $wpdb->get_results(
+				$wpdb->prepare(
+					'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND COLUMN_NAME = %s',
+					DB_NAME,
+					$campaigns_table,
+					$col
+				)
+			);
+			if (empty($exists)) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$wpdb->query($sql);
+			}
+		}
+
+		// Fix existing scheduled_at values that have 'T' format from browser datetime-local.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$wpdb->query("UPDATE {$campaigns_table} SET scheduled_at = REPLACE(scheduled_at, 'T', ' ') WHERE scheduled_at LIKE '%T%'");
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$wpdb->query("UPDATE {$campaigns_table} SET scheduled_at = CONCAT(scheduled_at, ':00') WHERE scheduled_at IS NOT NULL AND LENGTH(scheduled_at) = 16 AND scheduled_at NOT LIKE '%:%:%'");
 	}
 }
 

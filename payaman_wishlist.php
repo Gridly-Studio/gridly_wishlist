@@ -69,6 +69,7 @@ if (! class_exists('Payaman_Wishlist')) {
 			}
 
 			register_activation_hook(__FILE__, array($this, 'payaman_wishlist_install'));
+			register_deactivation_hook(__FILE__, array($this, 'payaman_wishlist_deactivate'));
 
 			$this->define_constants();
 			$this->includes();
@@ -76,6 +77,13 @@ if (! class_exists('Payaman_Wishlist')) {
 			add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
 			add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($this, 'plugin_add_settings_link'));
 			add_action('plugins_loaded', array($this, 'maybe_upgrade'));
+
+			add_filter('cron_schedules', array($this, 'add_cron_schedule'));
+			add_action('payaman_wishlist_cron', array($this, 'process_scheduled_campaigns'));
+
+			if (! wp_next_scheduled('payaman_wishlist_cron')) {
+				wp_schedule_event(time(), 'payaman_wishlist_every_minute', 'payaman_wishlist_cron');
+			}
 		}
 
 		/**
@@ -91,7 +99,7 @@ if (! class_exists('Payaman_Wishlist')) {
 			define('PAYAMAN_WISHLIST_LINK', plugin_dir_url(__FILE__));
 			define('PAYAMAN_WISHLIST_PATH', plugin_dir_path(__FILE__));
 			define('PAYAMAN_WISHLIST_REL_PATH', dirname(plugin_basename(__FILE__)) . '/');
-			define('PAYAMAN_WISHLIST_DB_VERSION', '2.2.0');
+			define('PAYAMAN_WISHLIST_DB_VERSION', '2.3.0');
 			define('PAYAMAN_WISHLIST_TABLE_COLLECTIONS', $wpdb->prefix . 'payaman_wishlist_collections');
 			define('PAYAMAN_WISHLIST_TABLE_ITEMS', $wpdb->prefix . 'payaman_wishlist_collection_items');
 			define('PAYAMAN_WISHLIST_TABLE_CAMPAIGNS', $wpdb->prefix . 'payaman_wishlist_campaigns');
@@ -152,12 +160,35 @@ if (! class_exists('Payaman_Wishlist')) {
 			return $links;
 		}
 
-		/**
-		 * Enqueue admin scripts and styles.
-		 *
-		 * @param string $page
-		 */
-		public function admin_enqueue_scripts($page)
+	public function payaman_wishlist_deactivate()
+	{
+		$timestamp = wp_next_scheduled('payaman_wishlist_cron');
+		if ($timestamp) {
+			wp_unschedule_event($timestamp, 'payaman_wishlist_cron');
+		}
+	}
+
+	public function add_cron_schedule($schedules)
+	{
+		$schedules['payaman_wishlist_every_minute'] = array(
+			'interval' => 60,
+			'display'  => __('Every Minute', 'payaman_wishlist'),
+		);
+		return $schedules;
+	}
+
+	public function process_scheduled_campaigns()
+	{
+		$campaigns = new Payaman_Wishlist_Campaigns();
+		$campaigns->process_due();
+	}
+
+	/**
+	 * Enqueue admin scripts and styles.
+	 *
+	 * @param string $page
+	 */
+	public function admin_enqueue_scripts($page)
 		{
 			$payamanstudio_pages = array(
 				'toplevel_page_payamanstudio',
