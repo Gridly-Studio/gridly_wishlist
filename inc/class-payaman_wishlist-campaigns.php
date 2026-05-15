@@ -139,9 +139,7 @@ if (! class_exists('Payaman_Wishlist_Campaigns')) {
 
 		public static function get_html_template()
 		{
-			return '<!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+			$template = '<!DOCTYPE html>
 <body style="margin:0;padding:0;background-color:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Arial,sans-serif;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f5;">
 <tr><td align="center" style="padding:30px 15px;">
@@ -159,6 +157,8 @@ if (! class_exists('Payaman_Wishlist_Campaigns')) {
 </table>
 </body>
 </html>';
+
+			return apply_filters('payaman_wishlist_email_template', $template);
 		}
 
 		public static function render_html_email($subject, $body, $replacements = array())

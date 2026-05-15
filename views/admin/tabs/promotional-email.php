@@ -165,13 +165,15 @@ $promo_nonce = wp_create_nonce('payaman_wishlist_promo_email');
                 <tr>
                     <th scope="row"><label for="campaign_body"><?php esc_html_e('Email Body', 'payaman_wishlist'); ?> <span class="req">*</span></label></th>
                     <td>
-                        <textarea id="campaign_body" rows="10" class="large-text" required><?php
-                            echo esc_textarea(__("Hi {user_name},\n\nGreat news! We have special offers on {count} product(s) from your wishlist:\n\n{products_list}\n\nDon't miss out — check them out now!\n\nBest regards,\n{site_name}", 'payaman_wishlist'));
-                        ?></textarea>
-                        <p class="description">
-                            <?php esc_html_e('Tags:', 'payaman_wishlist'); ?>
-                            <code>{user_name}</code> <code>{site_name}</code> <code>{count}</code> <code>{products_list}</code>
-                        </p>
+                        <div class="payaman-tag-chips">
+                            <span class="payaman-tag-label"><?php esc_html_e('Insert tag:', 'payaman_wishlist'); ?></span>
+                            <span class="payaman-tag-chip" data-tag="{user_name}">{user_name}</span>
+                            <span class="payaman-tag-chip" data-tag="{site_name}">{site_name}</span>
+                            <span class="payaman-tag-chip" data-tag="{count}">{count}</span>
+                            <span class="payaman-tag-chip" data-tag="{products_list}">{products_list}</span>
+                        </div>
+                        <textarea id="campaign_body" class="large-text" rows="12" required></textarea>
+                        <p class="description"><?php esc_html_e('Click the tags above to insert them at cursor position.', 'payaman_wishlist'); ?></p>
                     </td>
                 </tr>
             </table>
@@ -259,6 +261,15 @@ $promo_nonce = wp_create_nonce('payaman_wishlist_promo_email');
 }
 .payaman-btn-icon:hover .dashicons { opacity: 0.8; }
 .req { color: #d63638; font-weight: bold; }
+.payaman-tag-chips { margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.payaman-tag-label { font-size: 12px; color: #666; margin-right: 4px; }
+.payaman-tag-chip {
+    display: inline-block; font-size: 11px; font-family: monospace;
+    background: #f0f0f1; color: #2271b1; padding: 2px 8px;
+    border-radius: 3px; cursor: pointer; border: 1px solid #dcdcde;
+}
+.payaman-tag-chip:hover { background: #e5e5e5; color: #135e96; }
+
 .payaman-btn-icon[title] { position: relative; }
 .payaman-btn-icon[title]:hover:after {
     content: attr(title); position: absolute; bottom: calc(100% + 6px);
@@ -292,24 +303,88 @@ jQuery(function($) {
             .html('<p>' + msg + '</p>').show();
     }
 
+    function getEditorContent() {
+        if (typeof tinyMCE !== 'undefined' && tinyMCE.get('campaign_body')) {
+            return tinyMCE.get('campaign_body').getContent();
+        }
+        return $('#campaign_body').val();
+    }
+
+    function setEditorContent(html) {
+        if (typeof tinyMCE !== 'undefined' && tinyMCE.get('campaign_body')) {
+            tinyMCE.get('campaign_body').setContent(html);
+        }
+        $('#campaign_body').val(html);
+    }
+
+    function initEditor() {
+        var id = 'campaign_body';
+        if (typeof wp === 'undefined' || typeof wp.editor === 'undefined') return;
+        if (typeof tinyMCE !== 'undefined' && tinyMCE.get(id)) {
+            tinyMCE.get(id).show();
+            return;
+        }
+
+        wp.editor.initialize(id, {
+            tinymce: {
+                toolbar1: 'bold,italic,underline,separator,bullist,numlist,separator,link,unlink,separator,undo,redo',
+                toolbar2: '',
+                height: 280,
+            },
+            quicktags: true,
+        });
+    }
+
+    function destroyEditor() {
+        var id = 'campaign_body';
+        if (typeof tinyMCE !== 'undefined' && tinyMCE.get(id)) {
+            wp.editor.remove(id);
+        }
+    }
+
+    function insertTag(tag) {
+        if (typeof tinyMCE !== 'undefined' && tinyMCE.get('campaign_body') && !tinyMCE.get('campaign_body').isHidden()) {
+            tinyMCE.get('campaign_body').insertContent(tag);
+        } else {
+            var ta = document.getElementById('campaign_body');
+            var start = ta.selectionStart, end = ta.selectionEnd;
+            ta.value = ta.value.substring(0, start) + tag + ta.value.substring(end);
+            ta.selectionStart = ta.selectionEnd = start + tag.length;
+            ta.focus();
+        }
+    }
+
     function openModal(title) {
         $('#payaman_modal_title').text(title);
         $('#payaman_campaign_modal').fadeIn(150);
+        setTimeout(initEditor, 200);
     }
 
     function closeModal() {
+        destroyEditor();
         $('#payaman_campaign_modal').fadeOut(100);
+        $('#payaman_modal_status').hide();
     }
 
     function resetForm() {
+        destroyEditor();
         $('#edit_campaign_id').val('');
-        $('#campaign_name, #campaign_subject, #campaign_body').val('');
+        $('#campaign_name').val('');
+        $('#campaign_subject').val('');
+        $('#campaign_body').val('');
+        setEditorContent('');
+        $('#payaman_modal_status').hide();
         $('#campaign_products').val(null).trigger('change');
         $('#campaign_scheduled_at').val('');
         $('#campaign_repeat').val('');
         $('input[name="campaign_send_type"][value="immediate"]').prop('checked', true);
         $('#campaign_schedule_row, #campaign_repeat_row').hide();
     }
+
+    $('.payaman-tag-chip').on('click', function() {
+        insertTag($(this).data('tag'));
+    });
+
 
     $('input[name="campaign_send_type"]').on('change', function() {
         $('#campaign_schedule_row, #campaign_repeat_row').toggle($(this).val() === 'scheduled');
@@ -338,7 +413,7 @@ jQuery(function($) {
             $('#edit_campaign_id').val(c.id);
             $('#campaign_name').val(c.name);
             $('#campaign_subject').val(c.subject);
-            $('#campaign_body').val(c.body);
+            setEditorContent(c.body);
 
             var productIds = c.product_ids || [];
             if (productIds.length) {
@@ -386,7 +461,7 @@ jQuery(function($) {
         var name = $('#campaign_name').val();
         var products = $('#campaign_products').val();
         var subject = $('#campaign_subject').val();
-        var body = $('#campaign_body').val();
+        var body = getEditorContent();
         var sendType = $('input[name="campaign_send_type"]:checked').val();
         var scheduledAt = $('#campaign_scheduled_at').val() || '';
         var repeat = $('#campaign_repeat').val() || '';
@@ -447,7 +522,7 @@ jQuery(function($) {
     function getFormPreviewData() {
         return {
             subject: $('#campaign_subject').val(),
-            body: $('#campaign_body').val(),
+            body: getEditorContent(),
             product_ids: $('#campaign_products').val() || [],
             nonce: promoNonce
         };
